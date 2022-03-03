@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="user">
+    <!--获取用户基本信息-登录用-->
+    <select id="qryUserBaseInfoByPhone" parameterType="String" resultType="Map">
+        select user_id   "userId",
+               user_name "userName",
+               password "password",
+               phone "phone",
+               email "email",
+               status "status",
+               remark "remark",
+               not_update "notUpdate"
+        from user
+        where phone = #{phone}
+    </select>
+    <!--获取用户基本信息-登录用-->
+    <select id="qryUserBaseInfoByUsername" parameterType="String"
+            resultType="Map">
+        select user_id   "userId",
+               user_name "userName",
+               password "password",
+               phone "phone",
+               email "email",
+               status "status",
+               remark "remark",
+               not_update "notUpdate"
+        from user
+        where (phone = #{param} and phone is not null)
+           or (email = #{param} and email is not null)
+    </select>
+    <select id="qryUserBaseInfoByUserId" parameterType="Long"
+            resultType="Map">
+        select user_id   "userId",
+               user_name "userName",
+               password "password",
+               phone "phone",
+               email "email",
+               status "status",
+               remark "remark",
+               not_update "notUpdate"
+        from user
+        where user_id = #{userId}
+    </select>
+
+    <update id="updateUser" parameterType="com.yao2san.busi.user.bean.User">
+        update user
+        set update_date=now()
+        <if test="userName!=null and userName!=''">
+            ,user_name=#{userName}
+        </if>
+        <if test="email!=null and email!=''">
+            ,email = #{email}
+        </if>
+        <if test="status!=null and status !=''">
+            ,status=#{status}
+        </if>
+        where user_id = #{userId}
+            and (NOT_UPDATE is null or NOT_UPDATE != 1)
+    </update>
+
+    <insert id="addUser" parameterType="com.yao2san.busi.user.bean.User"
+            keyProperty="userId" useGeneratedKeys="true">
+        insert into user (user_name,
+                          password, phone,
+                          email, user_type,
+                          status, create_user,
+                          update_user, create_date,
+                          update_date, remark
+        )
+        values (#{userName}, null, #{phone}, #{email}, #{userType}, '1000', 1,
+                null, now(), now(), null)
+    </insert>
+
+    <!--添加用户属性-->
+    <insert id="addUserAttr" parameterType="Map">
+        insert into user_attr (user_id, attr_code, attr_value, status,
+        create_user, update_user, create_date,
+        update_date, remark)
+        values
+        <foreach collection="attrValueList" separator="," item="attrValue">
+            (#{userId},#{attrCode},#{attrValue},
+            '1000', 1, 1, now(),
+            now(), #{remark})
+        </foreach>
+    </insert>
+    <select id="checkUserAttr" parameterType="Map" resultType="Integer">
+        select count(*)
+        from user_attr
+        where attr_code = #{attrCode}
+          and user_id = #{userId}
+    </select>
+    <update id="updateUserAttr" parameterType="Map">
+        update user_attr
+        set update_date=now(),
+            attr_value=#{attrValue},
+            update_user=#{updateUser}
+        where user_id = #{userId}
+          and attr_code = #{attrCode}
+    </update>
+    <update id="deleteUserAttr" parameterType="Map">
+        delete
+        from user_attr
+        where user_id = #{userId}
+          and attr_code = #{attrCode}
+    </update>
+    <select id="qryUserAttr" parameterType="Map" resultType="Map">
+        select user_attr_id "userAttrId",
+        user_id "userId",
+        attr_code "attrCode",
+        attr_value "attrValue",
+        status "status",
+        create_user "createUser",
+        update_user "updateUser",
+        create_date "createDate",
+        update_date "updateDate",
+        remark "remark"
+        from user_attr
+        where user_id = #{userId}
+        <if test="attrCode!=null and attrCode!=''">
+            and attr_code=#{attrCode}
+        </if>
+    </select>
+
+
+    <!--新增用户授权-->
+    <insert id="addUserAuth" useGeneratedKeys="true" keyProperty="user_auth_id">
+        insert into user_auth(user_id,
+                              user_type,
+                              login_type,
+                              openid,
+                              access_token,
+                              status,
+                              create_date,
+                              update_date, remark
+        )
+        values (#{userId}, #{userType}, #{loginType}, #{openid},
+                #{accessToken}, #{status}, now(), now(), #{remark});
+    </insert>
+    <update id="updateUserAuth">
+        update user_auth
+        set update_date = now()
+        <if test="openid!=null and openid!=''">
+            ,openid=#{openid}
+        </if>
+        <if test="accessToken!=null and accessToken!=''">
+            , access_token=#{accessToken}
+        </if>
+        where user_id = #{userId}
+        and login_type=#{loginType}
+    </update>
+    <!--查询用户授权-->
+    <select id="qryUserAuth" parameterType="com.yao2san.busi.user.bean.UserAuth"
+            resultType="com.yao2san.busi.user.bean.UserAuth">
+        select *
+        from user_auth
+        where openid = #{openid}
+          and login_type = #{loginType}
+    </select>
+
+    <select id="checkAuthExists"
+            parameterType="com.yao2san.busi.user.bean.UserAuth"
+            resultType="Integer">
+        select count(*)
+        from user_auth
+        where openid = #{openid}
+          and login_type = #{loginType}
+    </select>
+</mapper>

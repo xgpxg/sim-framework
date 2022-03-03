@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="monitor">
+    <insert id="add"
+            parameterType="com.yao2san.sim.gateway.monitor.reporter.DatabaseReport">
+        insert into ROUTE_METRICS (ROUTE_ID, METRICS_NAME, ALL_COUNT,
+                                   SUCCESS_COUNT,
+                                   ERROR_COUNT, MEAN_RATE, MEAN_TIME, MIN_TIME,
+                                   MAX_TIME, M1_RATE, M5_RATE, M15_RATE,
+                                   P75_LESS_TIME, P95_LESS_TIME, P99_LESS_TIME,
+                                   P999_LESS_TIME, CREATE_DATE)
+        values (#{routeId}, #{metricsName},
+                case
+                    when (select 1
+                          from ROUTE_METRICS
+                          where ROUTE_ID = #{routeId}
+                          limit 1) is null then #{allCount}
+                    else (select ALL_COUNT
+                          from ROUTE_METRICS
+                          where ROUTE_ID = #{routeId}
+                          order by ROUTE_METRICS_ID desc
+                          limit 1) + #{allCount} end,
+                case
+                    when (select 1
+                          from ROUTE_METRICS
+                          where ROUTE_ID = #{routeId}
+                          limit 1) is null then #{successCount}
+                    else (select SUCCESS_COUNT
+                          from ROUTE_METRICS
+                          where ROUTE_ID = #{routeId}
+                          order by ROUTE_METRICS_ID desc
+                          limit 1) + #{successCount} end,
+                case
+                    when (select 1
+                          from ROUTE_METRICS
+                          where ROUTE_ID = #{routeId}
+                          limit 1) is null then #{errorCount}
+                    else (select ERROR_COUNT
+                          from ROUTE_METRICS
+                          where ROUTE_ID = #{routeId}
+                          order by ROUTE_METRICS_ID desc
+                          limit 1) + #{errorCount} end,
+                #{meanRate},
+                #{meanTime}, #{minTime}, #{maxTime}, #{m1Rate}, #{m5Rate},
+                #{m15Rate},
+                #{p75LessTime}, #{p95LessTime}, #{p99LessTime},
+                #{p999LessTime}, now())
+    </insert>
+
+    <select id="lastNew"
+            resultType="com.yao2san.sim.gateway.monitor.reporter.DatabaseReport">
+        select *
+        from ROUTE_METRICS
+        order by ROUTE_METRICS_ID desc
+        limit 1
+    </select>
+</mapper>

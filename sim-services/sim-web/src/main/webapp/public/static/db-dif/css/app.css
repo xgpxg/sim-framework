@@ -1,0 +1,42 @@
+.layout-logo {
+    width: 100%;
+    padding: 20px 20px;
+    float: left;
+    font-size: 1.2em;
+    border-bottom: #707070 solid 1px;
+    color:white;
+}
+.h-menu-white{
+}
+.h-sider{
+    border-right: whitesmoke solid 1px;
+}
+.h-layout{
+    overflow: auto;
+}
+.h-menu-li-selected{
+    background: black !important;
+}
+
+/*- scrollbar -*/
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-thumb{
+  background-color: #bfbfbf;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:vertical:hover{
+  background-color: #a9a9a9;
+}
+::-webkit-scrollbar-thumb:vertical:active{
+  background-color: #a3a3a3;
+}
+::-webkit-scrollbar-button{
+  display: none;
+}
+::-webkit-scrollbar-track{
+  background-color: #f1f1f1 !important;
+}

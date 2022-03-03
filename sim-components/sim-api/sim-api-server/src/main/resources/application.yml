@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: sim-api-server
+  profiles:
+    active: dev
+
+mybatis:
+  mapperLocations: classpath*:com/yao2san/**/mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+logging:
+  config: classpath:log4j2.xml

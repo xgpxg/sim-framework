@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="route">
+    <select id="loadAll"
+            parameterType="com.yao2san.sim.gateway.api.request.RouteReq"
+            resultType="com.yao2san.sim.gateway.route.core.DynamicRoute">
+        select route_id "id",
+        route_name "routeName",
+        group_id "groupId",
+        service_id "serviceId",
+        url "url",
+        type "type",
+        prefix "prefix",
+        path "path",
+        strip_prefix "stripPrefix",
+        retryable "retryable",
+        sensitive_headers "sensitiveHeaders",
+        custom_sensitive_headers "customSensitiveHeaders",
+        status "status",
+        version "version"
+        from ROUTE
+        where STATUS = '1000'
+    </select>
+
+    <select id="loadGrayRoutes"
+            parameterType="Object"
+            resultType="Map">
+        select route_gray_id "routeGrayId",
+               service_id    "serviceId",
+               path          "path",
+               main_version  "mainVersion",
+               gray_version  "grayVersion",
+               type          "type",
+               weight        "weight",
+               headers       "headers",
+               params        "params",
+               cookies       "cookies",
+               status        "status",
+               create_user   "createUser",
+               update_user   "updateUser",
+               create_date   "createDate",
+               update_date   "updateDate",
+               remark        "remark",
+               SERVICE_INSTANCES "serviceInstances"
+        from ROUTE_GRAY
+        where STATUS = '1000'
+    </select>
+</mapper>

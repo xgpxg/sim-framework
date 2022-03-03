@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dicCodeItem">
+    <select id="qryDicCode"
+            parameterType="com.yao2san.sim.system.busi.bean.request.DicCodeItemReq"
+            resultType="com.yao2san.sim.system.busi.bean.response.DicCodeItemRes">
+        select dic_code, dic_code_name, description, create_date, is_show from
+        SYS_DIC_CODE
+        where 1=1
+        <if test="dicCodeName != null and dicCodeName != ''">
+            and (dic_code like concat('%',#{dicCodeName},'%')) or (dic_code_name
+            like concat('%',#{dicCodeName},'%'))
+        </if>
+        order by DIC_CODE,CREATE_DATE desc
+    </select>
+    <select id="qryDicItem"
+            parameterType="com.yao2san.sim.system.busi.bean.request.DicCodeItemReq"
+            resultType="com.yao2san.sim.system.busi.bean.response.DicCodeItemRes">
+        select sdi.item_code, sdi.item_text, sdi.item_value, sdi.dic_code,
+        sdi.description,
+        sdi.create_date, sdi.status,sdc.DIC_CODE_NAME from
+        SYS_DIC_ITEM sdi
+        left join SYS_DIC_CODE sdc on sdi.DIC_CODE=sdc.DIC_CODE
+        where 1=1
+        <if test="itemText != null and itemText != ''">
+            and (sdi.dic_code like concat('%',#{itemText},'%') or item_code like
+            concat('%',#{itemText},'%') or item_text
+            like concat('%',#{itemText},'%') or sdc.dic_code_name like
+            concat('%',#{itemText},'%'))
+        </if>
+        order by DIC_CODE,ITEM_CODE,CREATE_DATE desc
+    </select>
+</mapper>

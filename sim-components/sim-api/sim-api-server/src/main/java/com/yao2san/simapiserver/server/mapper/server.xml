@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="server">
+    <insert id="addApi" parameterType="Map">
+        insert into sa_api (app_name,
+        app_addr,
+        api_name,
+        api_url,
+        req_method,
+        res_data,
+        res_type,
+        api_desc,
+        method,
+        api_type)
+        values (#{appName},
+        #{appAddr},
+        #{apiName},
+        #{apiUrl},
+        #{reqMethod},
+        #{resData},
+        #{resType},
+        #{apiDesc},
+        #{method},
+        <if test="apiType!=null and apiType!=''">
+            #{apiType}
+        </if>
+        <if test="apiType==null or apiType==''">
+            '1000'
+        </if>)
+    </insert>
+    <!--根据应用名称和api地址和请求方法检查是否存在API-->
+    <select id="checkExist" resultType="int">
+        select count(0)
+        from sa_api
+        where app_name = #{appName}
+          and api_url = #{apiUrl}
+          and req_method = #{reqMethod}
+    </select>
+    <!--更新客户端应用地址和API名称和状态-->
+    <update id="updateApi" parameterType="Map">
+        update sa_api
+        set app_addr = #{appAddr},
+            api_name=#{apiName},
+            status   = #{status}
+        where app_name = #{appName}
+          and api_url = #{apiUrl}
+    </update>
+    <!--失效API-->
+    <update id="invalidAllApi"
+            parameterType="com.yao2san.simapiclient.register.bean.ApiRegister">
+        update sa_api
+        set status = '2000'
+        where app_name = #{appName}
+    </update>
+    <!--查询API列表-->
+    <select id="simApiList"
+            parameterType="com.yao2san.simapiserver.server.bean.ApiInfoBean"
+            resultType="com.yao2san.simapiclient.register.bean.SimApiSimpleInfo">
+        select api_id "apiId",
+        api_url "apiUrl",
+        api_name "apiName",
+        app_name "appName",
+        app_addr "appAddr",
+        open_simulation "openSimulation",
+        req_method "reqMethod"
+        from sa_api
+        where
+        1=1
+        <if test="appName!=null and appName!=''">
+            and app_name = #{appName}
+        </if>
+        <if test="appAddr!=null and appAddr!=''">
+            and app_addr = #{appAddr}
+        </if>
+        <if test="openSimulation!=null and openSimulation!=''">
+            and open_simulation = #{openSimulation}
+        </if>
+    </select>
+    <!--查询模拟数据-->
+    <select id="simApiData"
+            parameterType="com.yao2san.simapiserver.server.bean.ApiInfoBean"
+            resultType="Object">
+        select res_data "resData"
+        from sa_api
+        where app_name = #{appName}
+          and api_url = #{apiUrl}
+          and req_method = #{requestType}
+          and open_simulation = 1
+    </select>
+    <!--app列表-->
+    <select id="appList" resultType="Map">
+        select count(0) "apiNum",
+               app_addr "appAddr",
+               app_name "appName"
+        from sa_api
+        group by app_name
+    </select>
+    <!--打开/关闭模拟API-->
+    <update id="openOrCloseSimulation" parameterType="int">
+        update sa_api
+        set open_simulation=#{open}
+        where api_id = #{apiId}
+    </update>
+    <!--获取API详情-->
+    <select id="apiDetail"
+            resultType="com.yao2san.simapiserver.server.bean.ApiInfoBean">
+        select api_id          "apiId",
+               app_name        "appName",
+               app_addr        "appAddr",
+               api_name        "apiName",
+               api_url         "apiUrl",
+               req_method      "reqMethod",
+               res_data        "resData",
+               res_type        "resType",
+               api_desc        "apiDesc",
+               method          "method",
+               create_time     "createTime",
+               update_time     "updateTime",
+               open_simulation "openSimulation"
+        from sa_api
+        where api_id = #{apiId}
+    </select>
+
+</mapper>

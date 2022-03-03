@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="route">
+    <select id="list"
+            parameterType="com.yao2san.sim.gateway.api.request.RouteReq"
+            resultType="com.yao2san.sim.gateway.api.response.RouteRes">
+        select
+        route_id "routeId",
+        route_name "routeName",
+        group_id "groupId",
+        service_id "serviceId",
+        url "url",
+        type "type",
+        prefix "prefix",
+        path "path",
+        strip_prefix "stripPrefix",
+        retryable "retryable",
+        sensitive_headers "sensitiveHeaders",
+        custom_sensitive_headers "customSensitiveHeaders",
+        status "status",
+        version "version"
+        from ROUTE
+        <where>
+            <if test="version!=null and version!=''">
+                and version = #{version}
+            </if>
+            <if test="path!=null and path!=''">
+                and path = #{path}
+            </if>
+            <if test="status!=null and status!=''">
+                and STATUS = #{status}
+            </if>
+            <if test="filterText!=null and filterText!=''">
+                route_name like
+                concat('%',#{filterText},'%') or path like
+                concat('%',#{filterText},'%') or service_id like
+                concat('%',#{filterText},'%'))
+            </if>
+        </where>
+        order by ROUTE_ID desc ,version desc
+    </select>
+    <select id="detail" parameterType="Long"
+            resultType="com.yao2san.sim.gateway.api.response.RouteRes">
+        select *
+        from ROUTE
+        where ROUTE_ID = #{routeId}
+        order by version
+    </select>
+    <insert id="add"
+            parameterType="com.yao2san.sim.gateway.api.request.RouteReq">
+        insert into ROUTE (URL, TYPE, PREFIX, PATH, ROUTE_NAME,
+                           SENSITIVE_HEADERS,
+                           CUSTOM_SENSITIVE_HEADERS, VERSION, GROUP_ID)
+        values (#{url}, #{type}, #{prefix}, #{path}, #{routeName},
+                #{sensitiveHeaders},
+                #{customSensitiveHeaders},
+                #{version}, #{groupId})
+    </insert>
+    <delete id="delete" parameterType="Long">
+        delete
+        from route
+        where ROUTE_ID = #{routeId}
+    </delete>
+    <update id="update"
+            parameterType="com.yao2san.sim.gateway.api.request.RouteReq">
+        update route set
+        <trim prefixOverrides="," suffixOverrides=",">
+
+            <if test="routeName!=null and routeName!=''">
+                ,ROUTE_NAME=#{routeName}
+            </if>
+            <if test="groupId!=null and groupId!=''">
+                , GROUP_ID=#{groupId}
+            </if>
+            <if test="serviceId!=null and serviceId!=''">
+                , SERVICE_ID=#{serviceId}
+            </if>
+            <if test="url!=null and url!=''">
+                , URL=#{url}
+            </if>
+            <if test="type!=null and type!=''">
+                , TYPE=#{type}
+            </if>
+            <if test="prefix!=null and prefix!=''">
+                , PREFIX=#{prefix}
+            </if>
+            <if test="path!=null and path!=''">
+                , PATH=#{path}
+            </if>
+            <if test="stripPrefix!=null and stripPrefix!=''">
+                , STRIP_PREFIX=#{stripPrefix}
+            </if>
+            <if test="retryable!=null">
+                , RETRYABLE=#{retryable}
+            </if>
+            <if test="sensitiveHeaders!=null">
+                , SENSITIVE_HEADERS=#{sensitiveHeaders}
+            </if>
+            <if test="customSensitiveHeaders!=null">
+                , CUSTOM_SENSITIVE_HEADERS=#{customSensitiveHeaders}
+            </if>
+            <if test="status!=null and status!=''">
+                , STATUS=#{status}
+            </if>
+            <if test="version!=null and version!=''">
+                , VERSION=#{version}
+            </if>
+        </trim>
+        where ROUTE_ID=#{routeId}
+    </update>
+
+    <select id="existByPath" parameterType="String" resultType="Integer">
+        select count(*)
+        from ROUTE
+        where PATH = #{path}
+    </select>
+</mapper>

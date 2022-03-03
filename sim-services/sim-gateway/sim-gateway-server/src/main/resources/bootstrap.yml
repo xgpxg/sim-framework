@@ -1,0 +1,107 @@
+server:
+  port: 7000
+spring:
+  application:
+    name: sim-gateway
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:h2:file:~/database/sim;AUTO_SERVER=true;MODE=MYSQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+    schema:
+      - classpath:db/init.sql
+    initialization-mode: never
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  h2:
+    console:
+      path: /h2
+  cloud:
+    nacos:
+      config:
+        enabled: false
+        server-addr: 192.168.10.1
+      discovery:
+        enabled: false
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+16
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:10001/eureka/
+    enabled: false
+mybatis:
+  mapperLocations: classpath*:com/yao2san/**/mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+  type-handlers-package: com.yao2san.sim.gateway.config.mybatis
+
+
+zuul:
+  routes:
+#    sim-auth-server:
+#      url: http://127.0.0.1:8084
+#      path: /api/auth/**
+#      stripPrefix: true
+#      customSensitiveHeaders: true
+#      add-host-header: true
+    db-dif:
+      url: http://127.0.0.1:5222
+      path: /api/db-dif/**
+      stripPrefix: true
+      customSensitiveHeaders: true
+      add-host-header: true
+    cache-service:
+      url: http://127.0.0.1:8001
+      path: /api/cache-service/**
+      stripPrefix: true
+      customSensitiveHeaders: true
+      add-host-header: true
+      version: 1.1.1.1.1.1
+  host:
+    socket-timeout-millis: 10000
+    connect-timeout-millis: 10000
+  ratelimit:
+    enabled: true
+    repository: REDIS
+  add-host-header: true
+  reporter:
+    period: 1
+    enabled: false
+  gray-route:
+    enable: false
+#    routes:
+#      eureka-client-demo:
+#        path: /demo1/**
+#        weight: 10
+#        type: HEADER
+#        gray-version: 2.0
+#        main-version: 1.0
+#        headers:
+#          version: 2.0
+  dynamic-route:
+    refresh-interval-seconds: 30
+logging:
+  config: classpath:log4j2.xml
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 60000
+ribbon:
+  ReadTimeout: 10000
+  ConnectTimeout: 10000
+
+app:
+  config:
+    is-auth: true

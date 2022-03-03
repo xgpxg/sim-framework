@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="userManage">
+    <select id="qryUserList" parameterType="com.yao2san.busi.user.bean.User"
+            resultType="Map">
+        select user_id "userId",
+        user_name "userName",
+        phone "phone",
+        email "email",
+        status "status",
+        user_type "userType",
+        eff_date "effDate",
+        exp_date "expDate",
+        create_user "createUser",
+        update_user "updateUser",
+        create_date "createDate",
+        update_date "updateDate",
+        remark "remark",
+        not_update "notUpdate",
+        open_id "openId",
+        secret_key "secretKey",
+        (select ITEM_TEXT from SYS_DIC_ITEM sdi where DIC_CODE='USER_STATUS' and
+        user.STATUS=sdi.ITEM_CODE) "statusName",
+        (select ITEM_TEXT from SYS_DIC_ITEM sdi where DIC_CODE='USER_TYPE' and
+        user.USER_TYPE=sdi.ITEM_CODE) "userTypeName"
+        from user user
+        where 1=1
+        <if test="userType!=null and userType!=''">
+            and user_type = #{userType}
+        </if>
+        <if test="status!=null and status!=''">
+            and status = #{status}
+        </if>
+        <if test="filterText!=null and filterText!=''">
+            and (user_name like concat('%', #{filterText} ,'%') or open_id=#{filterText})
+        </if>
+        order by create_date desc
+    </select>
+    <!--已授权用户权限(含特殊授权和角色权限)-->
+    <select id="qryUserPermissions"
+            parameterType="com.yao2san.busi.user.bean.Permission"
+            resultType="com.yao2san.busi.user.bean.Permission">
+        select sp.purview_id purviewId,
+        sp.purview_name purviewName,
+        sp.purview_type purviewType,
+        sp.purview_code purviewCode,
+        sp.url url,
+        sp.component component,
+        sp.icon icon,
+        sp.parent_id parentId,
+        sp.status status,
+        sp.create_user createUser,
+        sp.update_user updateUser,
+        sp.create_date createDate,
+        sp.update_date updateDate,
+        sp.remark remark,
+        sp.order_num orderNum,
+        sp.path,
+        srpr.eff_date effDate,
+        srpr.exp_date expDate,
+        'role' purviewObject,
+        '1' "isPermissions"
+        from purview sp
+        left join role_purview_rel srpr
+        on sp.purview_id = srpr.purview_id
+        left join user_role_rel surr
+        on srpr.role_id = surr.role_id
+        where surr.user_id = #{userId}
+        and sp.status = '1000'
+        and srpr.status = '1000'
+        and surr.status = '1000'
+        <if test="purviewId!=null and purviewId!=''">
+            and sp.purview_id = #{purviewId}
+        </if>
+        <if test="filterText!=null and filterText!=''">
+            and sp.purview_name like concat('%',#{filterText},'%')
+        </if>
+        <if test="purviewType!=null and purviewType!=''">
+            and sp.purview_type = #{purviewType}
+        </if>
+        <if test="path!=null and path!=''">
+            and sp.path like concat(#{path},'/%')
+        </if>
+        union
+
+        select sp.purview_id purviewId,
+        sp.purview_name purviewName,
+        sp.purview_type purviewType,
+        sp.purview_code purviewCode,
+        sp.url url,
+        sp.component component,
+        sp.icon icon,
+        sp.parent_id parentId,
+        sp.status status,
+        sp.create_user createUser,
+        sp.update_user updateUser,
+        sp.create_date createDate,
+        sp.update_date updateDate,
+        sp.remark remark,
+        sp.order_num orderNum,
+        sp.path,
+        supri.eff_date effDate,
+        supri.exp_date expDate,
+        'user' purviewObject,
+        '1' "isPermissions"
+        from purview sp
+        left join user_purview_rel supri
+        on sp.purview_id = supri.purview_id
+        where supri.user_id = #{userId}
+        and sp.status = '1000'
+        and supri.status = '1000'
+        <if test="purviewId!=null and purviewId!=''">
+            and sp.purview_id = #{purviewId}
+        </if>
+        <if test="filterText!=null and filterText!=''">
+            and sp.purview_name like concat('%',#{filterText},'%')
+        </if>
+        <if test="path!=null and path!=''">
+            and sp.path like concat(#{path},'/%')
+        </if>
+        order by effDate desc
+    </select>
+    <!--未授权的用户权限-->
+    <select id="qryUserNotPermissions"
+            parameterType="com.yao2san.busi.user.bean.Permission"
+            resultType="com.yao2san.busi.user.bean.Permission">
+        select sp.purview_id purviewId,
+        sp.purview_name purviewName,
+        sp.purview_type purviewType,
+        sp.purview_code purviewCode,
+        sp.url url,
+        sp.component component,
+        sp.icon icon,
+        sp.parent_id parentId,
+        sp.status status,
+        sp.create_user createUser,
+        sp.update_user updateUser,
+        sp.create_date createDate,
+        sp.update_date updateDate,
+        sp.remark remark,
+        sp.order_num orderNum,
+        sp.path "path",
+        null effDate,
+        null expDate,
+        '0' "isPermissions"
+        from purview sp
+
+        where sp.status = '1000'
+        <if test="purviewId!=null and purviewId!=''">
+            and sp.purview_id = #{purviewId}
+        </if>
+        <if test="filterText!=null and filterText!=''">
+            and sp.purview_name like concat('%',#{filterText},'%')
+        </if>
+        <if test="purviewType!=null and purviewType!=''">
+            and sp.purview_type = #{purviewType}
+        </if>
+        <if test="path!=null and path!=''">
+            and sp.path like concat(#{path},'/%')
+        </if>
+        and not exists(
+        select 1
+        from role_purview_rel srpr
+        left join user_role_rel surr
+        on srpr.role_id = surr.role_id
+        where srpr.ROLE_ID = surr.ROLE_ID
+        and surr.USER_ID = #{userId}
+        and srpr.PURVIEW_ID = sp.PURVIEW_ID
+        )
+        and not exists(
+        select 1
+        from user_purview_rel supri
+        where supri.USER_ID = #{userId}
+        and supri.PURVIEW_ID = sp.PURVIEW_ID)
+
+    </select>
+
+    <!--移除用户特殊授权关系-->
+    <delete id="delPurviewUserRel" parameterType="List">
+        delete
+        from USER_PURVIEW_REL
+        where
+        <foreach collection="list" item="item" separator="or">
+            (PURVIEW_ID = #{item.purviewId}
+            and USER_ID = #{item.userId})
+        </foreach>
+
+    </delete>
+    <!--新增用户特殊授权关系-->
+    <insert id="addPurviewUserRel" parameterType="List">
+        insert into
+        USER_PURVIEW_REL
+        (USER_ID, PURVIEW_ID, EFF_DATE, EXP_DATE, STATUS, CREATE_USER,
+        UPDATE_USER, CREATE_DATE, UPDATE_DATE, REMARK)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.userId},#{item.purviewId},now(),null,'1000',#{item.createUser},#{item.createUser},now(),now(),#{item.remark})
+        </foreach>
+
+    </insert>
+
+    <select id="qryUserRoles" parameterType="com.yao2san.busi.user.bean.User"
+            resultType="Map">
+        <if test="isAuthorized==null || isAuthorized=='' || isAuthorized=='0'">
+            select sr.role_id "roleId",
+            sr.role_code "roleCode",
+            sr.role_name "roleName",
+            sr.status "status",
+            sr.create_user "createUser",
+            sr.update_user "updateUser",
+            sr.create_date "createDate",
+            sr.update_date "updateDate",
+            sr.remark "remark",
+            0 "notUpdate",
+            null "effDate",
+            null "expDate",
+            0 "isAuthorized"
+            from role sr
+            where not exists(
+            select 1 from user_role_rel surr where surr.role_id= sr.role_id and
+            surr.user_id=#{userId}
+            )
+            <if test="filterText!=null and filterText!=''">
+                and sr.role_name like concat('%',#{filterText},'%')
+            </if>
+        </if>
+        <if test="isAuthorized==null || isAuthorized==''">
+            union
+        </if>
+        <if test="isAuthorized==null || isAuthorized=='' || isAuthorized=='1'">
+            select sr.role_id "roleId",
+            sr.role_code "roleCode",
+            sr.role_name "roleName",
+            sr.status "status",
+            sr.create_user "createUser",
+            sr.update_user "updateUser",
+            sr.create_date "createDate",
+            sr.update_date "updateDate",
+            sr.remark "remark",
+            surr.NOT_UPDATE "notUpdate",
+            surr.eff_date "effDate",
+            surr.exp_date "expDate",
+            1 "isAuthorized"
+            from role sr
+            left join user_role_rel surr
+            on sr.role_id = surr.role_id
+            where sr.status = '1000'
+            and surr.USER_ID = #{userId}
+            <if test="filterText!=null and filterText!=''">
+                and sr.role_name like concat('%',#{filterText},'%')
+            </if>
+        </if>
+
+    </select>
+
+    <!--移除用户角色关系-->
+    <delete id="delUserRoleRel" parameterType="List">
+        delete
+        from USER_ROLE_REL
+        where
+        <foreach collection="list" item="item" separator="or">
+            (ROLE_ID = #{item.roleId}
+            and USER_ID = #{item.userId}
+            and (NOT_UPDATE != 1 or NOT_UPDATE is null))
+
+        </foreach>
+
+    </delete>
+    <!--新增用户角色关系-->
+    <insert id="addUserRoleRel" parameterType="List">
+        insert into
+        USER_ROLE_REL
+        (USER_ID, ROLE_ID, EFF_DATE, EXP_DATE, STATUS, CREATE_USER,
+        UPDATE_USER, CREATE_DATE, UPDATE_DATE, REMARK)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.userId},#{item.roleId},now(),null,'1000',#{item.createUser},#{item.createUser},now(),now(),#{item.remark})
+        </foreach>
+
+    </insert>
+
+    <!--新增用户-->
+    <insert id="addUser" parameterType="com.yao2san.busi.user.bean.User"
+            keyProperty="userId" useGeneratedKeys="true">
+        insert into user (user_name,
+                          password, phone,
+                          email, user_type,
+                          description,
+                          status, create_user,
+                          update_user, create_date,
+                          update_date, remark, not_update)
+        values (#{userName}, #{password}, #{phone}, #{email}, #{userType},
+                #{description}, '1000', 1,
+                null, now(), now(), #{remark}, 0)
+    </insert>
+
+    <select id="qryUser" parameterType="Long" resultType="Map">
+        select user_id     "userId",
+               user_name   "userName",
+               phone       "phone",
+               email       "email",
+               user_type   "userType",
+               eff_date    "effDate",
+               exp_date    "expDate",
+               description "description",
+               status      "status",
+               create_user "createUser",
+               update_user "updateUser",
+               create_date "createDate",
+               update_date "updateDate",
+               remark      "remark"
+        from user
+        where user_id = #{userId}
+    </select>
+
+    <update id="updateUser" parameterType="com.yao2san.busi.user.bean.User">
+        update user
+        set UPDATE_DATE = now()
+        , update_user = #{updateUser}
+        <if test="userName!=null and userName!=''">
+            ,user_name=#{userName}
+        </if>
+        <if test="userType!=null and userType!=''">
+            , user_type= #{userType}
+        </if>
+        <if test="phone!=null and phone!=''">
+            ,phone = #{phone}
+        </if>
+        <if test="effDate!=null and effDate!=''">
+            ,EFF_DATE = #{effDate}
+        </if>
+        <if test="expDate!=null and expDate!=''">
+            ,EXP_DATE=#{expDate}
+        </if>
+        <if test="remark!=null and remark!=''">
+            ,remark = #{remark}
+        </if>
+        where user_id = #{userId}
+    </update>
+</mapper>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+    <script src="/js/npm/vue.js"></script>
+    <script src="/js/npm/heyui.js"></script>
+    <link rel="stylesheet" href="/css/npm/heyui/themes/index.css"/>
+    <link rel="stylesheet" href="/css/app.css"/>
+    <script src="/js/axios/0.19.0-beta.1/axios.min.js"></script>
+    <script src="/js/jquery/3.2.1/jquery.js"></script>
+</head>
+<body>
+<div id="app" style="min-height: 800px">
+    <div class="layout-demo-2-vue">
+        <h-layout  headerFixed="true" >
+            <h-sider theme="dark" class="h-sider" siderFixed="true">
+                <div class="layout-logo">数据库差异分析</div>
+                <h-menu style="margin-top: 70px;color: white"  class="h-menu-dark" :datas="menuDatas" ></h-menu>
+            </h-sider>
+            <h-layout :headerFixed="true" class="layout-demo-2-vue">
+                <h-content style="padding: 0 20px 0 0;">
+                    <div style="background: rgb(243, 237, 237); padding: 24px; min-height: 800px;">
+                        <h-row :space="9">
+                            <h-cell width="12">
+                                <div class="h-panel">
+                                    <div class="h-panel-bar">
+                                        <span class="h-panel-title">数据库{{formData.connectInfoLeft.database}}</span>
+                                        <span class="h-panel-right"><a></a></span>
+                                    </div>
+                                    <div class="h-panel-body">
+                                        <h-form ref="formLeft" :label-width="110" :rules="rules"
+                                                :model="formData.connectInfoLeft" mode="single" showErrorTip>
+                                            <h-formItem prop="connectString" label="连接串">
+                                                <input v-model="formData.connectInfoLeft.connectString" @change="leftConnectStringChange()" type="text"/>
+                                            </h-formItem>
+                                            <h-formItem prop="ip" label="IP地址">
+                                                <input v-model="formData.connectInfoLeft.ip" type="text"/>
+                                            </h-formItem>
+                                            <h-formItem prop="port" label="端口">
+                                                <input v-model="formData.connectInfoLeft.port" type="number"/>
+                                            </h-formItem>
+                                            <h-formItem prop="database" label="数据库">
+                                                <input v-model="formData.connectInfoLeft.database" type="text"/>
+                                            </h-formItem>
+                                            <h-formItem prop="param" label="连接参数">
+                                                <input v-model="formData.connectInfoLeft.param" type="text"/>
+                                            </h-formItem>
+                                            <h-formItem prop="username" label="用户名">
+                                                <input v-model="formData.connectInfoLeft.username" type="text"/>
+                                            </h-formItem>
+                                            <h-formItem prop="password" label="密码">
+                                                <input v-model="formData.connectInfoLeft.password" type="password"/>
+                                            </h-formItem>
+                                            <h-formItem prop="type" label="数据库类型" v-model="formData.connectInfoLeft.type">
+                                                <h-radio v-model="formData.connectInfoLeft.type" :datas="dict.type"></h-radio>
+                                            </h-formItem>
+                                            <h-formItem :no-padding="true">
+                                                <h-button color="primary" @click="connect('left')">连接</h-button>
+                                            </h-formItem>
+                                        </h-form>
+                                    </div>
+                                </div>
+                                <div class="h-panel">
+                                    <div class="h-panel-bar">
+                                        <span class="h-panel-title">选择需要比较的表:</span>
+                                    </div>
+                                    <div class="h-panel-body">
+                                        <h-table :datas="tablesInfoLeft" border ref="tableLeft" :height="400" :checkbox="true"
+                                                 selectWhenClickTr @select="trSelectLeft">
+                                            <h-tableItem title="表名" prop="TABLE_NAME" :width="150"></h-tableItem>
+                                            <h-tableItem title="数据量" prop="TABLE_ROWS" align="center"
+                                                         :width="80"></h-tableItem>
+                                            <h-tableItem title="注释" prop="TABLE_COMMENT" :width="150"></h-tableItem>
+                                            <h-tableItem title="操作" align="center" :width="80">
+                                                <template slot-scope="{data}">
+                                                    <button class="h-btn h-btn-s"
+                                                            @click="tableInfoDetailLeft(tablesInfoLeft, data)">详情
+                                                    </button>
+                                                </template>
+                                            </h-tableItem>
+                                            <div slot="empty">没有数据</div>
+                                        </h-table>
+                                    </div>
+                                </div>
+                            </h-cell>
+                            <h-cell width="12">
+                                <div class="h-panel">
+                                    <div class="h-panel-bar">
+                                        <span class="h-panel-title">数据库{{formData.connectInfoRight.database}}</span>
+                                        <span class="h-panel-right"><a></a></span>
+                                    </div>
+                                    <div class="h-panel-body">
+                                        <h-form :label-width="110" ref="formRight" :rules="rules"
+                                                :model="formData.connectInfoRight" mode="single">
+                                            <h-formItem prop="connectString" label="连接串">
+                                                <input v-model="formData.connectInfoRight.connectString" @change="rightConnectStringChange()" type="text"/>
+                                            </h-formItem>
+                                            <h-formItem prop="ip" label="主机">
+                                                <input v-model="formData.connectInfoRight.ip" type="text"/>
+                                            </h-formItem>
+                                            <h-formItem prop="port" label="端口">
+                                                <input v-model="formData.connectInfoRight.port" type="number"/>
+                                            </h-formItem>
+                                            <h-formItem prop="database" label="数据库">
+                                                <input v-model="formData.connectInfoRight.database" type="text"/>
+                                            </h-formItem>
+                                            <h-formItem prop="param" label="连接参数">
+                                                <input v-model="formData.connectInfoRight.param" type="text"/>
+                                            </h-formItem>
+                                            <h-formItem prop="username" label="用户名">
+                                                <input v-model="formData.connectInfoRight.username" type="text"/>
+                                            </h-formItem>
+                                            <h-formItem prop="password" label="密码">
+                                                <input v-model="formData.connectInfoRight.password" type="password"/>
+                                            </h-formItem>
+                                            <h-formItem prop="type" label="数据库类型" v-model="formData.connectInfoLeft.type">
+                                                <h-radio v-model="formData.connectInfoRight.type" :datas="dict.type"></h-radio>
+                                            </h-formItem>
+                                            <h-formItem :no-padding="true">
+                                                <h-button color="primary" @click="connect('right')">连接</h-button>
+                                            </h-formItem>
+                                        </h-form>
+                                    </div>
+                                </div>
+                                <div class="h-panel">
+                                    <div class="h-panel-bar">
+                                        <span class="h-panel-title">选择需要比较的表:</span>
+                                    </div>
+                                    <div class="h-panel-body">
+                                        <h-table :datas="tablesInfoRight" border ref="tableRight" :height="400" :checkbox="true"
+                                                 selectWhenClickTr @select="trSelectRight">
+                                            <h-tableItem title="表名" prop="TABLE_NAME" :width="150"></h-tableItem>
+                                            <h-tableItem title="数据量" prop="TABLE_ROWS" align="center"
+                                                         :width="80"></h-tableItem>
+                                            <h-tableItem title="注释" prop="TABLE_COMMENT" :width="150"></h-tableItem>
+                                            <h-tableItem title="operating" align="center" :width="80">
+                                                <template slot-scope="{data}">
+                                                    <button class="h-btn h-btn-s"
+                                                            @click="tableInfoDetailRight(tablesInfoRight, data)">详情
+                                                    </button>
+                                                </template>
+                                            </h-tableItem>
+                                            <div slot="empty">没有数据</div>
+                                        </h-table>
+                                    </div>
+                                </div>
+                            </h-cell>
+                        </h-row>
+                        <h-row :space="9">
+                            <h-cell width="24">
+                                <div>
+                                    <h-button :block="true" color="primary" @click="compare">开始对比</h-button>
+                                </div>
+                            </h-cell>
+                        </h-row>
+                        <h-row :space="9">
+                            <h-cell width="24">
+                                <div class="h-panel">
+                                    <div class="h-panel-bar">
+                                        <span class="h-panel-title">对比结果:</span>
+                                    </div>
+                                    <div class="h-panel-body">
+                                        <h-table :datas="result" border ref="table" >
+                                            <h-tableItem title="数据库1">
+                                                <template slot-scope="{data}">
+                                                <span :class="data.left.dif=='true'?'red-color':''+' '+'text-ellipsis'">
+                                                    {{data.left.TABLE_NAME}} {{parseDes(data.left)}}
+                                                </span>
+                                                </template>
+                                            </h-tableItem>
+                                            <h-tableItem title="操作" align="center" :width="150">
+                                                <template slot-scope="{data}">
+                                                    <h-button size="s" @click="resultDetail(data)">详情</h-button>
+                                                </template>
+                                            </h-tableItem>
+                                            <h-tableItem title="数据库2">
+                                                <template slot-scope="{data}">
+                                                <span :class="data.left.dif=='true'?'red-color':''+' '+'text-ellipsis'">
+                                                    {{data.left.TABLE_NAME}}{{parseDes(data.left)}}
+                                                </span>
+                                                </template>
+                                            </h-tableItem>
+                                            <template slot="expand" slot-scope="{index, data}">
+                                                <h-cell width="12">
+                                                    <h-table :datas="data.left.fields" v-font="12" >
+                                                        <h-tableItem title="字段">
+                                                            <template slot-scope="{data}">
+                                                                <span v-html="parseFieldDes('Field',data)"></span>                                                    </template>
+                                                        </h-tableItem>
+                                                        <h-tableItem title="类型" style="background-color: red">
+                                                            <template slot-scope="{data}">
+                                                                <span v-html="parseFieldDes('Type',data)"></span>                                                    </template>
+                                                        </h-tableItem>
+                                                        <h-tableItem title="可空" className="bg-blue-color">
+                                                            <template slot-scope="{data}">
+                                                                <span v-html="parseFieldDes('Null',data)"></span>                                                    </template>
+                                                        </h-tableItem>
+                                                        <h-tableItem title="键">
+                                                            <template slot-scope="{data}">
+                                                                <span v-html="parseFieldDes('Key',data)"></span>                                                    </template>
+                                                        </h-tableItem>
+                                                        <h-tableItem title="默认值">
+                                                            <template slot-scope="{data}">
+                                                                <span v-html="parseFieldDes('Default',data)"></span>                                                    </template>
+                                                        </h-tableItem>
+
+                                                    </h-table>
+                                                </h-cell>
+                                                <h-cell width="12">
+                                                    <h-table :datas="data.right.fields">
+                                                        <h-tableItem title="字段">
+                                                            <template slot-scope="{data}">
+                                                                <span v-html="parseFieldDes('Field',data)"></span>                                                    </template>
+                                                        </h-tableItem>
+                                                        <h-tableItem title="类型">
+                                                            <template slot-scope="{data}">
+                                                                <span v-html="parseFieldDes('Type',data)"></span>
+                                                            </template>
+                                                        </h-tableItem>
+                                                        <h-tableItem title="可空">
+                                                            <template slot-scope="{data}">
+                                                                <span v-html="parseFieldDes('Null',data)"></span>                                                    </template>
+                                                        </h-tableItem>
+                                                        <h-tableItem title="键">
+                                                            <template slot-scope="{data}">
+                                                                <span v-html="parseFieldDes('Key',data)"></span>                                                    </template>
+                                                        </h-tableItem>
+                                                        <h-tableItem title="默认值">
+                                                            <template slot-scope="{data}">
+                                                                <span v-html="parseFieldDes('Default',data)"></span>                                                    </template>
+                                                        </h-tableItem>
+                                                    </h-table>
+                                                </h-cell>
+                                            </template>
+                                            <div slot="empty">没有数据</div>
+                                        </h-table>
+                                    </div>
+                                </div>
+                            </h-cell>
+                        </h-row>
+                    </div>
+                </h-content>
+                <h-footer class="text-center">
+                    by  <a href="####">wxg</a>
+                    <a href="https://gitee.com/xgpxg/sim-framework/tree/master/sim-db-dif"  style="margin-right: 80px"><i class="h-icon-github"></i> </a>
+
+                </h-footer>
+            </h-layout>
+        </h-layout>
+    </div>
+
+    <h-modal v-model="opened" style="width: 800px;">
+        <div slot="header">详细信息：{{tableDetailInfo.TABLE_NAME}}</div>
+        <div class="h-panel-bar">
+            <span class="h-panel-title">表信息</span>
+        </div>
+        <h-form :readonly="true" mode="threecolumn">
+            <h-formItem label="所在库">{{tableDetailInfo.TABLE_SCHEMA}}</h-formItem>
+            <h-formItem label="引擎">{{tableDetailInfo.ENGINE}}</h-formItem>
+            <h-formItem label="版本">{{tableDetailInfo.VERSION}}</h-formItem>
+            <h-formItem label="表名">{{tableDetailInfo.TABLE_NAME}}</h-formItem>
+            <h-formItem label="数据量">{{tableDetailInfo.TABLE_ROWS}}</h-formItem>
+            <h-formItem label="创建时间">{{formatTime(new Date(tableDetailInfo.CREATE_TIME))}}</h-formItem>
+            <h-formItem label="更新时间">{{tableDetailInfo.UPDATE_TIME==null?'':formatTime(new
+                Date(tableDetailInfo.UPDATE_TIME))}}
+            </h-formItem>
+            <h-formItem label="编码">{{tableDetailInfo.TABLE_COLLATION}}</h-formItem>
+            <h-formItem label="注释">{{tableDetailInfo.TABLE_COMMENT}}</h-formItem>
+        </h-form>
+        <div class="h-panel-bar">
+            <span class="h-panel-title">字段信息</span>
+        </div>
+        <h-table :datas="fieldsList" :border="true" :height="300">
+            <h-tableItem title="字段" prop="Field"></h-tableItem>
+            <h-tableItem title="类型" prop="Type"></h-tableItem>
+            <h-tableItem title="可空" prop="Null"></h-tableItem>
+            <h-tableItem title="键" prop="Key"></h-tableItem>
+            <h-tableItem title="默认值" prop="Default"></h-tableItem>
+            <h-tableItem title="扩展属性" prop="Extra"></h-tableItem>
+            <h-tableItem title="注释" prop="Comment"></h-tableItem>
+            <div slot="empty">暂时无数据</div>
+        </h-table>
+        <div slot="footer">
+            <button class="h-btn" @click="opened=false">取消</button>
+        </div>
+    </h-modal>
+</div>
+</body>
+<script src="/js/common.js"></script>
+<script src="/js/app.js">
+</script>
+
+</html>

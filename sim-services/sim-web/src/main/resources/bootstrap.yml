@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: sim-web
+  profiles:
+    active: dev
+zuul:
+  host:
+    socket-timeout-millis: 10000
+    connect-timeout-millis: 10000
+logging:
+  config: classpath:log4j2.xml

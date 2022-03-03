@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="role">
+    <select id="getUserRoles" parameterType="Long"
+            resultType="com.yao2san.sim.auth.client.busi.user.bean.Role">
+        select sr.role_id     roleId,
+               sr.role_code   roleCode,
+               sr.role_name   roleName,
+               sr.status      status,
+               sr.create_user createUser,
+               sr.update_user updateUser,
+               sr.create_date createDate,
+               sr.update_date updateDate,
+               sr.remark      remark,
+               surr.eff_date  effDate,
+               surr.exp_date  expDate
+        from role sr
+                 left join user_role_rel surr
+                           on sr.role_id = surr.role_id
+        where surr.user_id = #{userId}
+          and sr.status = '1000'
+          and surr.status = '1000'
+    </select>
+    <select id="hasRole" parameterType="Map" resultType="Integer">
+        select count(*)
+        from user_role_rel
+        where user_id = #{userId}
+          and role_id = #{roleId}
+          and status = '1000'
+    </select>
+</mapper>

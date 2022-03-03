@@ -1,0 +1,23 @@
+GET http://127.0.0.1:8001/showDb
+
+###
+
+POST http://127.0.0.1:8001/connect
+Content-Type: application/json
+
+{
+  "host": "127.0.0.1",
+  "port": 6379
+}
+
+###
+
+GET http://127.0.0.1:8001/info
+Content-Type: application/json
+
+{
+  "host": "127.0.0.1",
+  "port": 6379
+}
+
+###

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="redis">
+    <insert id="addCacheInstance"
+            parameterType="com.yao2san.busi.redis.bean.CacheInstance">
+        insert into CACHE_INSTANCE (NAME, TYPE, CONNECT_TYPE, HOST, PORT, NODES,
+                                    CREATE_DATE, UPDATE_DATE)
+        VALUES (#{name}, 'redis', #{connectType}, #{host}, #{port}, #{nodes},
+                now(), now())
+    </insert>
+    <select id="qryCacheInstance"
+            parameterType="com.yao2san.busi.redis.bean.CacheInstance"
+            resultType="com.yao2san.busi.redis.bean.CacheInstance">
+        select cache_instance_id "cacheInstanceId",
+               name              "name",
+               type              "type",
+               connect_type      "connectType",
+               host              "host",
+               port              "port",
+               nodes             "nodes",
+               status            "status",
+               create_user       "createUser",
+               update_user       "updateUser",
+               create_date       "createDate",
+               update_date       "updateDate",
+               remark            "remark"
+        from CACHE_INSTANCE
+    </select>
+
+    <update id="updateCacheInstance"
+            parameterType="com.yao2san.busi.redis.bean.CacheInstance">
+        update CACHE_INSTANCE set
+        update_date=now()
+        <if test="name!=null and name!=''">
+            ,NAME = #{name}
+        </if>
+        <if test="nodes!=null and nodes!=''">
+            ,NODES = #{nodes}
+        </if>
+        <if test="connectType!=null and connectType!=''">
+            ,CONNECT_TYPE = #{connectType}
+        </if>
+        <if test="host!=null and host!=''">
+            ,HOST = #{host}
+        </if>
+        <if test="port!=null and port!=''">
+            ,PORT = #{port}
+        </if>
+        where CACHE_INSTANCE_ID=#{cacheInstanceId}
+    </update>
+
+    <delete id="deleteInstance" parameterType="Long">
+        delete
+        from CACHE_INSTANCE
+        where CACHE_INSTANCE_ID = #{deleteInstance}
+    </delete>
+</mapper>

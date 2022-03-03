@@ -1,0 +1,12 @@
+server:
+  port: 8021
+spring:
+  datasource:
+    url: jdbc:h2:file:~/database/sim-db-dif;AUTO_SERVER=true
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+    schema:
+      - classpath:db/init.sql
+    initialization-mode: always
+

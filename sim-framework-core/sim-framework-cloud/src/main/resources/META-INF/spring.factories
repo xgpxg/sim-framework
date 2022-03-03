@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.yao2san.sim.framework.cloud.config.NacosGroup,\
+com.yao2san.sim.framework.cloud.config.CloudConfig

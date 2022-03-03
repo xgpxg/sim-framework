@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="role">
+    <select id="qryRoleList" parameterType="com.yao2san.busi.user.bean.Role"
+            resultType="Map">
+        select role_id "roleId",
+        role_code "roleCode",
+        role_name "roleName",
+        status "status",
+        create_user "createUser",
+        update_user "updateUser",
+        create_date "createDate",
+        update_date "updateDate",
+        remark "remark",
+        NOT_UPDATE "notUpdate",
+        (select ITEM_TEXT from SYS_DIC_ITEM sdi where DIC_CODE='ROLE_STATUS' and
+        role.STATUS=sdi.ITEM_CODE) "statusName",
+        (select count(*) from USER_ROLE_REL urr where urr.ROLE_ID=role.ROLE_ID)
+        "userCount"
+        from ROLE role
+        where 1=1
+        <if test="status!=null and status!=''">
+            and status=#{status}
+        </if>
+        order by CREATE_DATE desc
+    </select>
+    <insert id="addRole" parameterType="com.yao2san.busi.user.bean.Role">
+        insert into ROLE (ROLE_CODE, ROLE_NAME, STATUS, CREATE_USER,
+                          UPDATE_USER, CREATE_DATE, UPDATE_DATE, REMARK,
+                          NOT_UPDATE)
+        values (#{roleCode}, #{roleName}, #{status}, #{createUser},
+                #{updateUser}, now(), now(), #{remark}, 0)
+    </insert>
+    <update id="updateRole" parameterType="com.yao2san.busi.user.bean.Role">
+        update ROLE
+        set UPDATE_DATE=now(),
+        UPDATE_USER=#{updateUser}
+        <if test="roleName!=null and roleName!=''">
+            ,ROLE_NAME=#{roleName}
+        </if>
+        <if test="roleCode!=null and roleCode!=''">
+            ,ROLE_CODE=#{roleCode}
+        </if>
+        where ROLE_ID=#{roleId}
+        and NOT_UPDATE is not 1
+    </update>
+    <select id="checkRoleCodeExist" parameterType="String" resultType="Integer">
+        select count(*)
+        from ROLE
+        where ROLE_CODE = #{roleCode}
+    </select>
+
+    <delete id="deleteRole" parameterType="Long">
+        delete
+        from ROLE
+        where role_id = #{roleId}
+          and NOT_UPDATE is not 1
+    </delete>
+</mapper>

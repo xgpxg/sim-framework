@@ -1,0 +1,10 @@
+app:
+  config:
+    login-url: http://127.0.0.1:9527/#/login
+    not-found-url: http://127.0.0.1:9528/#/404
+    local-temp-file-dir: D:/tmp/
+mybatis:
+  mapperLocations: classpath*:com/yao2san/**/mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+  type-handlers-package: com.yao2san.sim.gateway.config.mybatis

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="service">
+    <select id="list"
+            parameterType="com.yao2san.sim.gateway.api.request.ServiceReq"
+            resultType="com.yao2san.sim.gateway.api.response.ServiceRes">
+        select service_id, route_id, type, name, url, status,
+        create_user, update_user,
+        formatdatetime(create_date,'yyyy-MM-dd HH:mm:ss') "createDate",
+        formatdatetime(update_date,'yyyy-MM-dd HH:mm:ss') "updateDate", remark,
+        enable_monitor
+        from SERVICE
+        where 1 = 1
+        <if test="type!=null and type!=''">
+            and type=#{type}
+        </if>
+        <if test="name!=null and name!=''">
+            and name line concat('%',#{name},'%')
+        </if>
+    </select>
+
+</mapper>

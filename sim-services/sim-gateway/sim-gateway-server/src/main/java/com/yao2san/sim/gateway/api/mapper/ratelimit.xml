@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="rateLimit">
+    <select id="list" parameterType="Object"
+            resultType="com.yao2san.sim.gateway.rate.core.RouteRateLimit">
+        select
+        RRLP.*,
+        R.SERVICE_ID
+        from ROUTE_RATE_LIMIT_POLICY RRLP left join ROUTE R on RRLP.ROUTE_ID =
+        R.ROUTE_ID
+        where 1=1
+        <if test="routeId!=null and routeId!=''">
+            and RRLP.ROUTE_ID=#{routeId}
+        </if>
+    </select>
+
+    <insert id="add"
+            parameterType="com.yao2san.sim.gateway.api.request.RouteRateLimitReq">
+        insert into ROUTE_RATE_LIMIT_POLICY (ROUTE_ID, "limit", QUOTA,
+                                             REFRESH_INTERVAL, MATCH_TYPE,
+                                             BREAK_ON_MATCH)
+        values (#{routeId}, #{limit}, #{quota}, #{refreshInterval},
+                #{matchType}, #{breakOnMatch})
+    </insert>
+    <update id="update"
+            parameterType="com.yao2san.sim.gateway.api.request.RouteRateLimitReq">
+
+    </update>
+    <delete id="delete"
+            parameterType="com.yao2san.sim.gateway.api.request.RouteRateLimitReq">
+        delete
+        from ROUTE_RATE_LIMIT_POLICY
+        where ROUTE_RATE_LIMIT_POLICY_ID = #{routeRateLimitPolicyId}
+    </delete>
+</mapper>

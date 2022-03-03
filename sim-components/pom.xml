@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.yao2san</groupId>
+        <artifactId>sim-framework-core</artifactId>
+        <version>1.0.2</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>sim-components</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0.2</version>
+
+    <properties>
+        <java.version>1.8</java.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <sim.framework.version>1.0.2</sim.framework.version>
+        <sim.framework.base.version>1.0.2</sim.framework.base.version>
+        <sim.framework.web.version>1.0.2</sim.framework.web.version>
+        <sim.framework.utils.version>1.0.2</sim.framework.utils.version>
+        <sim.framework.cloud.version>1.0.2</sim.framework.cloud.version>
+        <sim.framework.log.version>1.0.2</sim.framework.log.version>
+    </properties>
+
+    <modules>
+        <module>sim-printer</module>
+        <module>sim-db-query</module>
+        <module>sim-jvoke</module>
+        <module>sim-task</module>
+        <module>sim-api</module>
+        <module>sim-db-dif</module>
+        <module>sim-cache</module>
+        <module>sim-flink</module>
+    </modules>
+
+    <repositories>
+        <repository>
+            <id>rdc-releases</id>
+            <url>
+                https://61c59941e74da01affdc9d7b:Swtu1HNF1phz@packages.aliyun.com/maven/repository/2170823-release-TpgdUY/
+            </url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+</project>

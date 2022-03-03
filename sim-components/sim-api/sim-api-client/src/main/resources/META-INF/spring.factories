@@ -1,0 +1,5 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.yao2san.simapiclient.config.SimApiAutoConfiguration,\
+com.yao2san.simapiclient.config.SimApiWebAutoConfiguration,\
+com.yao2san.simapiclient.register.refresh.SImAPiRefresh,\
+com.yao2san.simapiclient.config.SecurityConfig

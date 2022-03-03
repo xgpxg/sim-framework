@@ -1,0 +1,11 @@
+{
+  "name": "sim-el-table-plus",
+  "version": "1.0.8",
+  "description": "对element-ui table的二次封装",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "wxg",
+  "license": "ISC"
+}

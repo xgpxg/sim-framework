@@ -1,0 +1,12 @@
+server:
+  port: 10004
+spring:
+  application:
+    name: eureka-client-demo
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:10001/eureka/
+  instance:
+    metadata-map:
+      version: 1.0

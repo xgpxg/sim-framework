@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="task.manager">
+    <insert id="insertTask"
+            parameterType="com.yao2san.manager.com.yao2san.sim.framework.web.bean.SimTaskQueryBean">
+        insert into SIM_TASK (TASK_NAME, TASK_GROUP, CLASS_NAME, CRON, ENABLED,
+                              APP_NAME, APP_ADDR)
+        values (#{taskName}, #{group}, #{className}, #{cron}, #{enabled},
+                #{appName}, #{appAddr})
+    </insert>
+    <update id="updateTask"
+            parameterType="Map">
+        update SIM_TASK
+        set
+        <trim suffixOverrides=",">
+            <if test="state!=null and state!=''">
+                STATE=#{state},
+            </if>
+            <if test="enabled!=null">
+                ENABLED=#{enabled},
+            </if>
+        </trim>
+        where ID = #{id}
+    </update>
+    <select id="queryTask"
+            parameterType="com.yao2san.manager.com.yao2san.sim.framework.web.bean.SimTaskQueryBean"
+            resultType="com.yao2san.manager.com.yao2san.sim.framework.web.bean.SimTaskQueryBean">
+        select id         "id",
+               task_name  "taskName",
+               task_group "group",
+               class_name "className",
+               cron       "cron",
+               enabled    "enabled",
+               APP_NAME   "appName",
+               APP_ADDR   "appAddr"
+        from SIM_TASK
+        where ID = #{id}
+    </select>
+    <select id="queryTaskList"
+            parameterType="com.yao2san.manager.com.yao2san.sim.framework.web.bean.SimTaskQueryBean"
+            resultType="com.yao2san.manager.com.yao2san.sim.framework.web.bean.SimTaskQueryBean">
+        select id "id",
+        task_name "taskName",
+        task_group "group",
+        class_name "className",
+        cron "cron",
+        enabled "enabled",
+        APP_NAME "appName",
+        APP_ADDR "appAddr",
+        STATE "state",
+        CREATE_TIME "createDate",
+        UPDATE_TIME "updateDate"
+        from SIM_TASK
+        where 1=1
+        <if test="id!=null and id!=''">
+            and id=#{id}
+        </if>
+        <if test="taskName!=null and taskName!=''">
+            and task_name=#{taskName}
+        </if>
+        <if test="group!=null and group!=''">
+            and task_group=#{group}
+        </if>
+        <if test="enabled!=null and enabled!=''">
+            and enabled=#{enabled}
+        </if>
+        <if test="appName!=null and appName!=''">
+            and app_name=#{appName}
+        </if>
+        <if test="state!=null and state!=''">
+            and state=#{state}
+        </if>
+    </select>
+    <select id="queryTaskLogList"
+            parameterType="com.yao2san.manager.com.yao2san.sim.framework.web.bean.SimTaskQueryBean"
+            resultType="Map">
+        select id          "id",
+               SIM_TASK_ID "taskId",
+               INSTANCE_ID "instanceId",
+               LOG         "log",
+               LEVEL       "level",
+               formatdatetime(CREATE_TIME,'yyyy-MM-dd HH:mm:ss') "createDate",
+               UPDATE_TIME "updateDate"
+        from SIM_TASK_LOG
+        where SIM_TASK_ID = #{id}
+        order by "instanceId" desc,"createDate"
+    </select>
+</mapper>

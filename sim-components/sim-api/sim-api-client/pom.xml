@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>sim-api</artifactId>
+        <groupId>com.yao2san</groupId>
+        <version>1.0.2</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>sim-api-client</artifactId>
+    <version>1.0.2</version>
+    <name>sim-api-client</name>
+    <description>sim-api client project</description>
+
+    <packaging>jar</packaging>
+
+    <developers>
+        <developer>
+            <name>wxg</name>
+        </developer>
+    </developers>
+
+    <properties>
+        <sim.framework.base.version>1.0.2</sim.framework.base.version>
+        <sim.framework.web.version>1.0.2</sim.framework.web.version>
+        <sim.framework.utils.version>1.0.2</sim.framework.utils.version>
+    </properties>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>com.yao2san</groupId>
+            <artifactId>sim-framework-base</artifactId>
+            <version>${sim.framework.base.version}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.yao2san</groupId>
+            <artifactId>sim-framework-web</artifactId>
+            <version>${sim.framework.web.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*.yml</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

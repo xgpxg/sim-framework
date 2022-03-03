@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dbDifMapper">
+    <select id="qryTables">
+        SELECT *
+        FROM INFORMATION_SCHEMA.TABLES
+        WHERE TABLE_SCHEMA = 'wdap'
+        ORDER BY create_time DESC;
+    </select>
+
+    <insert id="insertHistory" parameterType="Map">
+        insert into DB_DIF_HISTORY (DB_1, DB_2, DF_JSON_ORIGINAL, DF_JSON)
+        values (#{db1}, #{db2}, #{dfJsonOriginal}, #{dfJson})
+    </insert>
+
+    <select id="qryHistory" resultType="Map">
+        select HISTORY_ID  as "historyId",
+               DB_1        as "db1",
+               DB_2        as "db2",
+               DF_JSON     as "dfJson",
+               DF_JSON_ORIGINAL as "dfJsonOriginal",
+               CREATE_DATE  as "createDate"
+        from DB_DIF_HISTORY order by CREATE_DATE desc limit 20
+    </select>
+</mapper>

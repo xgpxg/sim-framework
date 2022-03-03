@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="permissionManage">
+    <select id="qryPermissionList"
+            parameterType="com.yao2san.busi.user.bean.Permission"
+            resultType="com.yao2san.busi.user.bean.Permission">
+        select purview_id "purviewId",
+        purview_name "purviewName",
+        purview_type "purviewType",
+        purview_code "purviewCode",
+        url "url",
+        icon "icon",
+        parent_id "parentId",
+        component "component",
+        order_num "orderNum",
+        status "status",
+        create_user "createUser",
+        update_user "updateUser",
+        create_date "createDate",
+        update_date "updateDate",
+        remark "remark",
+        hidden "hidden"
+        from PURVIEW
+        where 1=1
+        <if test="purviewName!=null and purviewName!=''">
+            and purview_name like concat('%',#{purviewName},'%')
+        </if>
+        <if test="status!=null and status!=''">
+            and status = #{status}
+        </if>
+        <if test="purviewType!=null and purviewType!=''">
+            and purview_type = #{purviewType}
+        </if>
+        <if test="parentId!=null and parentId!=''">
+            and parent_id = #{parentId}
+        </if>
+        <if test="path!=null and path!=''">
+            and path like concat(#{path},'/%')
+        </if>
+        order by order_num
+    </select>
+
+    <select id="qryPermissionDetail" parameterType="Long"
+            resultType="com.yao2san.busi.user.bean.Permission">
+        select purview_id   "purviewId",
+               purview_name "purviewName",
+               purview_type "purviewType",
+               purview_code "purviewCode",
+               url          "url",
+               icon         "icon",
+               parent_id    "parentId",
+               component    "component",
+               order_num    "orderNum",
+               status       "status",
+               create_user  "createUser",
+               update_user  "updateUser",
+               create_date  "createDate",
+               update_date  "updateDate",
+               remark       "remark",
+               hidden       "hidden",
+               PATH         "path"
+        from PURVIEW
+        where purview_id = #{purviewId}
+    </select>
+    <select id="countPermissionByCode"
+            parameterType="com.yao2san.busi.user.bean.Permission"
+            resultType="Integer">
+        select count(*)
+        from purview
+        where PURVIEW_CODE = #{purviewCode}
+    </select>
+    <!--新增权限-->
+    <insert id="addPermission"
+            parameterType="com.yao2san.busi.user.bean.Permission"
+            keyProperty="purviewId" useGeneratedKeys="true">
+        insert into PURVIEW (PURVIEW_NAME, PURVIEW_TYPE, PURVIEW_CODE, URL,
+                             ICON, PARENT_ID, STATUS, CREATE_USER, UPDATE_USER,
+                             CREATE_DATE, UPDATE_DATE, REMARK, COMPONENT,
+                             ORDER_NUM, HIDDEN)
+        values (#{purviewName}, #{purviewType}, #{purviewCode}, #{url},
+                #{icon}, #{parentId}, #{status}, #{createUser},
+                #{updateUser},
+                now(), #{updateDate}, #{remark}, #{component},
+                #{orderNum}, #{hidden})
+    </insert>
+
+    <!--修改权限-->
+    <update id="updatePermission"
+            parameterType="com.yao2san.busi.user.bean.Permission">
+        update PURVIEW
+        set UPDATE_DATE = now()
+        <if test="purviewName!=null and purviewName!=''">
+            ,PURVIEW_NAME = #{purviewName}
+        </if>
+        <if test="purviewType!=null and purviewType!=''">
+            ,PURVIEW_TYPE = #{purviewType}
+        </if>
+        <if test="purviewCode!=null and purviewCode!=''">
+            ,PURVIEW_CODE = #{purviewCode}
+        </if>
+        <if test="url!=null and url!=''">
+            ,URL = #{url}
+        </if>
+        <if test="icon!=null and icon!=''">
+            ,ICON = #{icon}
+        </if>
+        <if test="parentId!=null and parentId!=''">
+            ,PARENT_ID = #{parentId}
+        </if>
+        <if test="status!=null and status!=''">
+            ,STATUS = #{status}
+        </if>
+        <if test="updateUser!=null and updateUser!=''">
+            ,UPDATE_USER = #{updateUser}
+        </if>
+        <if test="remark!=null and remark!=''">
+            ,REMARK = #{remark}
+        </if>
+        <if test="component!=null and component!=''">
+            ,COMPONENT = #{component}
+        </if>
+        <if test="orderNum!=null and orderNum!=''">
+            ,ORDER_NUM = #{orderNum}
+        </if>
+        <if test="hidden!=null and hidden!=''">
+            ,HIDDEN = #{hidden}
+        </if>
+        <if test="path!=null and path!=''">
+            ,PATH = #{path}
+        </if>
+        where PURVIEW_ID = #{purviewId}
+    </update>
+    <!--查询指定权限已授权的角色-->
+    <select id="qryPermissionRoles"
+            parameterType="com.yao2san.busi.user.bean.Permission"
+            resultType="Map">
+        select r.role_id "roleId",
+        r.role_code "roleCode",
+        r.role_name "roleName",
+        r.status "status",
+        r.create_user "createUser",
+        r.update_user "updateUser",
+        r.create_date "createDate",
+        r.update_date "updateDate",
+        r.remark "remark",
+        rpr.CREATE_DATE "purviewTime",
+        '1' "isPermissions"
+        from ROLE r
+        left join ROLE_PURVIEW_REL rpr
+        on r.ROLE_ID = rpr.ROLE_ID
+        where
+        rpr.PURVIEW_ID = #{purviewId}
+        and r.STATUS = '1000'
+        and rpr.STATUS = '1000'
+        and r.ROLE_ID = rpr.ROLE_ID
+        <if test="filterText!=null and filterText!=''">
+            and role_name like concat('%',#{filterText},'%')
+        </if>
+    </select>
+    <!--查询指定权限未授权的角色-->
+    <select id="qryNotPermissionRoles"
+            parameterType="com.yao2san.busi.user.bean.Permission"
+            resultType="Map">
+        select r.role_id "roleId",
+        r.role_code "roleCode",
+        r.role_name "roleName",
+        r.status "status",
+        r.create_user "createUser",
+        r.update_user "updateUser",
+        r.create_date "createDate",
+        r.update_date "updateDate",
+        r.remark "remark",
+        null "purviewTime",
+        '0' "isPermissions"
+        from ROLE r
+        where
+        not exists(select 1 from ROLE_PURVIEW_REL rpr where
+        rpr.ROLE_ID=r.ROLE_ID and rpr.PURVIEW_ID=#{purviewId})
+        <if test="filterText!=null and filterText!=''">
+            and role_name like concat('%',#{filterText},'%')
+        </if>
+    </select>
+    <!--查询指定权限已授权/未授权的角色-->
+    <select id="qryAllPermissionRoles"
+            parameterType="com.yao2san.busi.user.bean.Permission"
+            resultType="Map">
+        select r.role_id "roleId",
+        r.role_code "roleCode",
+        r.role_name "roleName",
+        r.status "status",
+        r.create_user "createUser",
+        r.update_user "updateUser",
+        r.create_date "createDate",
+        r.update_date "updateDate",
+        r.remark "remark",
+        rpr.CREATE_DATE "purviewTime",
+        '1' "isPermissions"
+        from ROLE r
+        left join ROLE_PURVIEW_REL rpr
+        on r.ROLE_ID = rpr.ROLE_ID
+        where
+        rpr.PURVIEW_ID = #{purviewId}
+        and r.STATUS = '1000'
+        and rpr.STATUS = '1000'
+        and r.ROLE_ID = rpr.ROLE_ID
+        <if test="filterText!=null and filterText!=''">
+            and role_name like concat('%',#{filterText},'%')
+        </if>
+        union all
+        select r.role_id "roleId",
+        r.role_code "roleCode",
+        r.role_name "roleName",
+        r.status "status",
+        r.create_user "createUser",
+        r.update_user "updateUser",
+        r.create_date "createDate",
+        r.update_date "updateDate",
+        r.remark "remark",
+        null "purviewTime",
+        '0' "isPermissions"
+        from ROLE r
+        where
+        not exists(select 1 from ROLE_PURVIEW_REL rpr where
+        rpr.ROLE_ID=r.ROLE_ID and rpr.PURVIEW_ID=#{purviewId})
+        <if test="filterText!=null and filterText!=''">
+            and role_name like concat('%',#{filterText},'%')
+        </if>
+    </select>
+
+
+    <!--查询指定权限已授权的用户-->
+    <select id="qryPermissionUsers"
+            parameterType="com.yao2san.busi.user.bean.Permission"
+            resultType="Map">
+        select r.USER_ID "userId",
+        r.USER_NAME "userName",
+        r.status "status",
+        r.create_user "createUser",
+        r.update_user "updateUser",
+        r.create_date "createDate",
+        r.update_date "updateDate",
+        r.remark "remark",
+        rpr.CREATE_DATE "purviewTime",
+        '1' "isPermissions"
+        from user r
+        left join USER_PURVIEW_REL rpr
+        on r.USER_ID = rpr.USER_ID
+        where
+        rpr.PURVIEW_ID = #{purviewId}
+        and r.STATUS = '1000'
+        and rpr.STATUS = '1000'
+        and r.USER_ID = rpr.USER_ID
+        <if test="filterText!=null and filterText!=''">
+            and user_name like concat('%',#{filterText},'%')
+        </if>
+    </select>
+    <!--查询指定权限未授权的用户-->
+    <select id="qryNotPermissionUsers"
+            parameterType="com.yao2san.busi.user.bean.Permission"
+            resultType="Map">
+        select r.USER_ID "userId",
+        r.USER_NAME "userName",
+        r.status "status",
+        r.create_user "createUser",
+        r.update_user "updateUser",
+        r.create_date "createDate",
+        r.update_date "updateDate",
+        r.remark "remark",
+        null "purviewTime",
+        '0' "isPermissions"
+        from USER r
+        where
+        not exists(select 1 from USER_PURVIEW_REL rpr where
+        rpr.USER_ID=r.USER_ID and rpr.PURVIEW_ID=#{purviewId})
+        <if test="filterText!=null and filterText!=''">
+            and user_name like concat('%',#{filterText},'%')
+        </if>
+    </select>
+    <!--查询指定权限已授权/未授权的用户-->
+    <select id="qryAllPermissionUsers"
+            parameterType="com.yao2san.busi.user.bean.Permission"
+            resultType="Map">
+        select r.USER_ID "userId",
+        r.USER_NAME "userName",
+        r.status "status",
+        r.create_user "createUser",
+        r.update_user "updateUser",
+        r.create_date "createDate",
+        r.update_date "updateDate",
+        r.remark "remark",
+        rpr.CREATE_DATE "purviewTime",
+        '1' "isPermissions"
+        from USER r
+        left join USER_PURVIEW_REL rpr
+        on r.USER_ID = rpr.USER_ID
+        where
+        rpr.PURVIEW_ID = #{purviewId}
+        and r.STATUS = '1000'
+        and rpr.STATUS = '1000'
+        and r.USER_ID = rpr.USER_ID
+        <if test="filterText!=null and filterText!=''">
+            and user_name like concat('%',#{filterText},'%')
+        </if>
+        union all
+        select r.USER_ID "userId",
+        r.USER_NAME "userName",
+        r.status "status",
+        r.create_user "createUser",
+        r.update_user "updateUser",
+        r.create_date "createDate",
+        r.update_date "updateDate",
+        r.remark "remark",
+        null "purviewTime",
+        '0' "isPermissions"
+        from USER r
+        where
+        not exists(select 1 from USER_PURVIEW_REL rpr where
+        rpr.USER_ID=r.USER_ID and rpr.PURVIEW_ID=#{purviewId})
+        <if test="filterText!=null and filterText!=''">
+            and user_name like concat('%',#{filterText},'%')
+        </if>
+    </select>
+
+
+    <!--移除角色授权关系-->
+    <delete id="delPurviewRoleRel" parameterType="List">
+        delete
+        from ROLE_PURVIEW_REL
+        where
+        <foreach collection="list" item="item" separator="or">
+            (PURVIEW_ID = #{item.purviewId}
+            and ROLE_ID = #{item.roleId})
+        </foreach>
+
+    </delete>
+
+    <insert id="addPurviewRoleRel" parameterType="List">
+        insert into
+        ROLE_PURVIEW_REL
+        (ROLE_ID, PURVIEW_ID, EFF_DATE, EXP_DATE, STATUS, CREATE_USER,
+        UPDATE_USER, CREATE_DATE, UPDATE_DATE, REMARK)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.roleId},#{item.purviewId},now(),null,'1000',#{item.createUser},#{item.createUser},now(),now(),#{item.remark})
+        </foreach>
+
+    </insert>
+
+    <delete id="deletePermission">
+        delete
+        from PURVIEW
+        where PURVIEW_ID = #{purviewId}
+    </delete>
+
+    <select id="qryRolePermissions"
+            parameterType="com.yao2san.busi.user.bean.request.RolePermissionReq"
+            resultType="com.yao2san.busi.user.bean.Permission">
+        select p.*,
+        rpr.EFF_DATE "effDate",
+        '1' as "isPermissions"
+        from ROLE_PURVIEW_REL rpr
+        left join PURVIEW p on p.PURVIEW_ID = rpr.PURVIEW_ID
+        where rpr.ROLE_ID=#{roleId}
+        and p.STATUS='1000'
+        <if test="purviewId!=null and purviewId!='' and purviewId>0">
+            and p.path like concat((select t.path from purview t where
+            t.purview_id = #{purviewId}),'/%')
+        </if>
+        <if test="purviewName!=null and purviewName!=''">
+            and p.purview_name like concat('%',#{purviewName},'%')
+        </if>
+    </select>
+    <select id="qryRoleNotPermissions"
+            parameterType="com.yao2san.busi.user.bean.request.RolePermissionReq"
+            resultType="com.yao2san.busi.user.bean.Permission">
+        select p.*,'0' as "isPermissions" from PURVIEW p where not exists(select
+        1 from ROLE_PURVIEW_REL
+        rpr where rpr.PURVIEW_ID=p.PURVIEW_ID and rpr.ROLE_ID=#{roleId})
+        and p.STATUS='1000'
+        <if test="purviewId!=null and purviewId!='' and purviewId>0">
+            and p.path like concat((select t.path from purview t where
+            t.purview_id = #{purviewId}),'/%')
+        </if>
+        <if test="purviewName!=null and purviewName!=''">
+            and p.purview_name like concat('%',#{purviewName},'%')
+        </if>
+    </select>
+
+    <select id="qryRoleAllPermissions"
+            parameterType="com.yao2san.busi.user.bean.request.RolePermissionReq"
+            resultType="com.yao2san.busi.user.bean.Permission">
+        select p.*,
+        rpr.EFF_DATE "effDate",
+        '1' as "isPermissions"
+        from ROLE_PURVIEW_REL rpr
+        left join PURVIEW p on p.PURVIEW_ID = rpr.PURVIEW_ID
+        where rpr.ROLE_ID=#{roleId}
+        and p.STATUS='1000'
+        <if test="purviewId!=null and purviewId!='' and purviewId>0">
+            and p.path like concat((select t.path from purview t where
+            t.purview_id = #{purviewId}),'/%')
+        </if>
+        <if test="purviewName!=null and purviewName!=''">
+            and p.purview_name like concat('%',#{purviewName},'%')
+        </if>
+        union all
+        select p.*,
+        null as "effDate",
+        '0' as "isPermissions"
+        from PURVIEW p where not exists(select
+        1 from ROLE_PURVIEW_REL
+        rpr where rpr.PURVIEW_ID=p.PURVIEW_ID and rpr.ROLE_ID=#{roleId})
+        and p.STATUS='1000'
+        <if test="purviewId!=null and purviewId!='' and purviewId>0">
+            and p.path like concat((select t.path from purview t where
+            t.purview_id = #{purviewId}),'/%')
+        </if>
+        <if test="purviewName!=null and purviewName!=''">
+            and p.purview_name like concat('%',#{purviewName},'%')
+        </if>
+    </select>
+</mapper>

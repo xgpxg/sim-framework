@@ -1,0 +1,10 @@
+sim-task:
+  server-addr: 127.0.0.1:9000
+  base-scan-packages: com.yao2san
+  store-type: server
+spring:
+  application:
+    name: client
+server:
+  port: 9002
+

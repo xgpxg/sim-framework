@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="baseMapper">
+    <select id="getDicList" resultType="Map">
+        select item_code   "itemCode",
+               item_text   "itemText",
+               item_value "itemValue",
+               dic_code    "dicCode",
+               description "description",
+               CREATE_DATE "createDate",
+               status "status"
+        from sys_dic_item sdi
+        where sdi.dic_code = #{code} and status='1000'
+    </select>
+    <select id="getDicItem" parameterType="Map" resultType="Map">
+        select item_code   "itemCode",
+               item_text   "itemText",
+               item_value "itemValue",
+               dic_code    "dicCode",
+               description "description",
+               CREATE_DATE "createDate",
+               status "status"
+        from sys_dic_item sdi
+        where sdi.dic_code = #{dicCode} and  sdi.item_code = #{itemCode} and status='1000'
+    </select>
+    <select id="getSignalDicCodeValue" parameterType="String" resultType="String">
+        select item_value "itemValue"
+        from sys_dic_item sdi
+        where sdi.dic_code = #{dicCode}
+          and status = '1000'
+    </select>
+    <update id="nativeUpdate" parameterType="Map">
+        ${sql}
+    </update>
+
+    <select id="nativeSelect" parameterType="Map" resultType="Object">
+        ${sql}
+    </select>
+
+    <delete id="nativeDelete" parameterType="Map">
+        ${sql}
+    </delete>
+</mapper>

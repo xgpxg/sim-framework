@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="rateLimit">
+    <select id="qryRouteRateLimits" parameterType="Object"
+            resultType="com.yao2san.sim.gateway.rate.core.RouteRateLimit">
+        select
+        RRLP.*,
+        R.ROUTE_ID "id",
+        R.SERVICE_ID
+        from ROUTE_RATE_LIMIT_POLICY RRLP left join ROUTE R on RRLP.ROUTE_ID =
+        R.ROUTE_ID
+        where 1=1
+        <if test="routeId!=null and routeId!=''">
+            and RRLP.ROUTE_ID=#{routeId}
+        </if>
+    </select>
+</mapper>

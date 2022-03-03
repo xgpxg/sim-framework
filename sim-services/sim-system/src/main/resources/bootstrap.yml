@@ -1,0 +1,18 @@
+server:
+  port: 8012
+spring:
+  application:
+    name: sim-system
+  profiles:
+    active: dev
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+16
+  main:
+    allow-bean-definition-overriding: true
+mybatis:
+  mapperLocations: classpath*:com/yao2san/**/mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+logging:
+  config: classpath:log4j2.xml

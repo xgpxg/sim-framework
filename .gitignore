@@ -1,0 +1,5 @@
+### Maven template
+target/
+node_modules/
+.idea
+dist/

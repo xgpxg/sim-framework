@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="oauth">
+    <!--根据openId查租户-->
+    <select id="qryUserByOpenId" parameterType="String"
+            resultType="com.yao2san.busi.user.bean.User">
+        select *
+        from USER u
+        where u.OPEN_ID = #{openId}
+    </select>
+    <select id="qrySecretKyByUserId" parameterType="Long" resultType="String">
+        select u.SECRET_KEY "secretKey"
+        from user u
+        where u.USER_ID = #{userId}
+    </select>
+    <!--根据openId查询租户-->
+    <select id="qryTenantUser" parameterType="String"
+            resultType="com.yao2san.busi.user.bean.User">
+        select user.user_id   "userId",
+               user.user_name "userName",
+               user.status    "status",
+               user.open_id   "openId"
+        from user user
+        where user.user_type = '3000'
+          and user.open_id = #{openId}
+    </select>
+    <!--查询已授权的服务-->
+    <select id="qryPermissionService" parameterType="Long"
+            resultType="Map">
+        select sp.SERVICE_ID "serviceId",
+               s.NAME        "name",
+               s.URL         "url"
+        from SERVICE_PURVIEW sp
+                 left join SERVICE s on sp.SERVICE_ID = s.SERVICE_ID
+        where sp.USER_ID = #{userId}
+          and sp.STATUS = '1000'
+          and s.STATUS = '1000'
+    </select>
+</mapper>

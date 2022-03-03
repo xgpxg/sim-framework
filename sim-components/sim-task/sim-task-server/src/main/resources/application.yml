@@ -1,0 +1,31 @@
+server:
+  port: 9000
+sim-task:
+  serverAddr: 127.0.0.1:8091
+
+spring:
+  application:
+    name: sim-api-server
+  datasource:
+    url: jdbc:h2:file:~/database/sim-task;AUTO_SERVER=true
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+    #    schema:
+    #      - classpath:db/init.sql
+    initialization-mode: never
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  h2:
+    console:
+      path: /h2
+
+mybatis:
+  mapperLocations: classpath*:com/yao2san/**/mapper/*.xml
+  mybatis:
+    configuration:
+      map-underscore-to-camel-case: true

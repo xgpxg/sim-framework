@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+    <script src="/js/npm/vue.js"></script>
+    <script src="/js/npm/heyui.js"></script>
+    <link rel="stylesheet" href="/css/npm/heyui/themes/index.css"/>
+    <link rel="stylesheet" href="/css/app.css"/>
+    <script src="/js/axios/0.19.0-beta.1/axios.min.js"></script>
+    <script src="/js/jquery/3.2.1/jquery.js"></script>
+
+</head>
+<body>
+<div id="app" style="min-height: 800px">
+    <div class="layout-demo-2-vue">
+        <h-layout  headerFixed="true" >
+            <h-sider theme="dark" class="h-sider" siderFixed="true">
+                <div class="layout-logo">数据库差异分析</div>
+                <h-menu style="margin-top: 70px;color: white"  class="h-menu-dark" :datas="menuDatas" ></h-menu>
+            </h-sider>
+            <h-layout :headerFixed="true" class="layout-demo-2-vue">
+                <h-content style="padding: 0 20px 0 0;">
+                    <div style="background: rgb(243, 237, 237); padding: 24px; min-height: 800px;">
+                        <h-row :space="9">
+                            <h-cell width="12"  v-for="(item,index) in initData.historyList">
+                                <div >
+                                    <div class="h-panel" >
+                                        <div class="h-panel-bar">
+                                            <span class="h-panel-title" style="font-size: 0.85em;">{{item.createDate}}</span>
+                                            <span class="h-panel-right">
+                                                <i class="h-icon-success" v-if="item.dfJson.length===0" style="color: green;"></i>
+                                                <i class="h-icon-warn" v-if="item.dfJson.length>0" style="color: red;"> 存在差异</i>
+                                            </span>
+                                        </div>
+                                        <div class="h-panel-body">
+                                            <h-form :readonly="true" :mode="'twocolumn'">
+                                                <h-form-item label="数据库1：">{{item.db1.database}} </h-form-item>
+                                                <h-form-item label="数据库2：">{{item.db2.database}}</h-form-item>
+                                                <h-form-item label="地址：">{{item.db1.ip+':'+item.db1.port}} </h-form-item>
+                                                <h-form-item label="地址：">{{item.db2.ip+':'+item.db2.port}}</h-form-item>
+                                                <h-form-item label="表数量：">{{item.db1.tableNum}} </h-form-item>
+                                                <h-form-item label="表数量：">{{item.db2.tableNum}}</h-form-item>
+                                                <h-form-item label="差异数量：">{{item.dfJson.length}} </h-form-item>
+                                                <h-form-item label="差异数量：">{{item.dfJson.length}}</h-form-item>
+                                                <h-button @click="openHistoryDetailModal(item.dfJsonOriginal)">查看差异</h-button>
+                                                <!--<h-button >重新分析</h-button>-->
+
+                                            </h-form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </h-cell>
+                        </h-row>
+
+                    </div>
+                </h-content>
+                <h-footer class="text-center">
+                    by  <a href="https://yao2san.com" target="_blank">wxg</a>
+                    <a href="https://gitee.com/xgpxg/sim-framework/tree/master/sim-db-dif"  style="margin-right: 80px"><i class="h-icon-github"></i> </a>
+
+                </h-footer>
+            </h-layout>
+        </h-layout>
+    </div>
+
+    <h-modal v-model="opened">
+        <div slot="header">详细信息：</div>
+        <h-row :space="9">
+            <h-cell width="24">
+                <div class="h-panel"  style="width: 1000px;">
+                    <div class="h-panel-body">
+                        <h-table :datas="dfDetailList" border ref="table" >
+                            <h-tableItem title="数据库1">
+                                <template slot-scope="{data}">
+                                                <span :class="data.left.dif=='true'?'red-color':''+' '+'text-ellipsis'">
+                                                    {{data.left.TABLE_NAME}} {{parseDes(data.left)}}
+                                                </span>
+                                </template>
+                            </h-tableItem>
+                            <h-tableItem title="操作" align="center" :width="150">
+                                <template slot-scope="{data}">
+                                    <h-button size="s" @click="resultDetail(data)">详情</h-button>
+                                </template>
+                            </h-tableItem>
+                            <h-tableItem title="数据库2">
+                                <template slot-scope="{data}">
+                                                <span :class="data.left.dif=='true'?'red-color':''+' '+'text-ellipsis'">
+                                                    {{data.left.TABLE_NAME}}{{parseDes(data.left)}}
+                                                </span>
+                                </template>
+                            </h-tableItem>
+                            <template slot="expand" slot-scope="{index, data}">
+                                <h-cell width="12">
+                                    <h-table :datas="data.left.fields" v-font="12" >
+                                        <h-tableItem title="字段">
+                                            <template slot-scope="{data}">
+                                                <span v-html="parseFieldDes('Field',data)"></span>                                                    </template>
+                                        </h-tableItem>
+                                        <h-tableItem title="类型" style="background-color: red">
+                                            <template slot-scope="{data}">
+                                                <span v-html="parseFieldDes('Type',data)"></span>                                                    </template>
+                                        </h-tableItem>
+                                        <h-tableItem title="可空" className="bg-blue-color">
+                                            <template slot-scope="{data}">
+                                                <span v-html="parseFieldDes('Null',data)"></span>                                                    </template>
+                                        </h-tableItem>
+                                        <h-tableItem title="键">
+                                            <template slot-scope="{data}">
+                                                <span v-html="parseFieldDes('Key',data)"></span>                                                    </template>
+                                        </h-tableItem>
+                                        <h-tableItem title="默认值">
+                                            <template slot-scope="{data}">
+                                                <span v-html="parseFieldDes('Default',data)"></span>                                                    </template>
+                                        </h-tableItem>
+
+                                    </h-table>
+                                </h-cell>
+                                <h-cell width="12">
+                                    <h-table :datas="data.right.fields">
+                                        <h-tableItem title="字段">
+                                            <template slot-scope="{data}">
+                                                <span v-html="parseFieldDes('Field',data)"></span>                                                    </template>
+                                        </h-tableItem>
+                                        <h-tableItem title="类型">
+                                            <template slot-scope="{data}">
+                                                <span v-html="parseFieldDes('Type',data)"></span>
+                                            </template>
+                                        </h-tableItem>
+                                        <h-tableItem title="可空">
+                                            <template slot-scope="{data}">
+                                                <span v-html="parseFieldDes('Null',data)"></span>                                                    </template>
+                                        </h-tableItem>
+                                        <h-tableItem title="键">
+                                            <template slot-scope="{data}">
+                                                <span v-html="parseFieldDes('Key',data)"></span>                                                    </template>
+                                        </h-tableItem>
+                                        <h-tableItem title="默认值">
+                                            <template slot-scope="{data}">
+                                                <span v-html="parseFieldDes('Default',data)"></span>                                                    </template>
+                                        </h-tableItem>
+                                    </h-table>
+                                </h-cell>
+                            </template>
+                            <div slot="empty">没有数据</div>
+                        </h-table>
+                    </div>
+                </div>
+            </h-cell>
+        </h-row>
+        <div slot="footer">
+            <button class="h-btn" @click="opened=false">取消</button>
+        </div>
+    </h-modal>
+</div>
+</body>
+<script src="/js/common.js"></script>
+
+<script src="/js/history.js"></script>
+
+</html>

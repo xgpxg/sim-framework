@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <!--引入CSS-->
+    <link href="https://cdn.bootcss.com/webuploader/0.1.1/webuploader.css" rel="stylesheet">
+    <!--引入JS-->
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/webuploader/0.1.1/webuploader.min.js"></script></head>
+<body>
+<div id="uploader" class="wu-example">
+    <!--用来存放文件信息-->
+    <div id="thelist" class="uploader-list"></div>
+    <div class="btns">
+        <div id="picker">选择文件</div>
+    </div>
+</div>
+<script>
+var uploader = WebUploader.create({
+
+        // swf文件路径
+        swf:  'https://cdn.bootcss.com/webuploader/0.1.1/Uploader.swf',
+    auto: true,
+        // 文件接收服务端。
+        server: 'http://webuploader.duapp.com/server/fileupload.php',
+
+        // 选择文件的按钮。可选。
+        // 内部根据当前运行是创建，可能是input元素，也可能是flash.
+        pick: '#picker',
+
+        // 不压缩image, 默认如果是jpeg，文件上传前会压缩一把再上传！
+        resize: false
+    });
+    // 当有文件被添加进队列的时候
+    uploader.on( 'fileQueued', function( file ) {
+        $('#thelist').html( '<div id="' + file.id + '" class="item">' +
+            '<h4 class="info">' + file.name + '</h4>' +
+            '<p class="state">等待上传...</p>' +
+            '</div>' );
+    });
+
+    uploader.on( 'uploadProgress', function( file, percentage ) {
+        console.log(percentage*100+"%")
+    });
+
+//当有一批文件加载进队列时触发事件
+uploader.on("filesQueued", function (file) {
+    console.log(file)
+});
+//当有一批文件加载进队列时触发事件
+//uploader.on("fileQueued", webFilesQueued);
+//单个文件开始上传
+//uploader.on("uploadStart", uploadStart);
+//单个文件上传成功
+//uploader.on("uploadSuccess", uploadSuccess);
+
+//所有文件上传结束
+//uploader.on("uploadFinished", uploadComplete);
+//图片校验不通过时
+//uploader.on("error", webFileQueueError);
+//上传出错时
+uploader.on("uploadError",function (file) {
+    $('#thelist').html('上传失败')
+});
+</script>
+</body>
+</html>

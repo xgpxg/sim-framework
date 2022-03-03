@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="permission">
+    <select id="getUserPermissions"
+            parameterType="com.yao2san.busi.user.bean.Permission"
+            resultType="com.yao2san.busi.user.bean.Permission">
+        select sp.purview_id purviewId,
+        sp.purview_name purviewName,
+        sp.purview_type purviewType,
+        sp.purview_code purviewCode,
+        sp.url url,
+        sp.component component,
+        sp.icon icon,
+        sp.parent_id parentId,
+        sp.status status,
+        sp.create_user createUser,
+        sp.update_user updateUser,
+        sp.create_date createDate,
+        sp.update_date updateDate,
+        sp.remark remark,
+        sp.order_num orderNum,
+        sp.hidden hidden
+        <!--srpr.eff_date effDate,
+        srpr.exp_date expDate-->
+        from purview sp
+        left join role_purview_rel srpr
+        on sp.purview_id = srpr.purview_id
+        left join user_role_rel surr
+        on srpr.role_id = surr.role_id
+        where surr.user_id = #{userId}
+        and sp.status = '1000'
+        and srpr.status = '1000'
+        and surr.status = '1000'
+        <if test="purviewType!=null and purviewType!=''">
+            and sp.purview_type = #{purviewType}
+        </if>
+
+        union
+
+        select sp.purview_id purviewId,
+        sp.purview_name purviewName,
+        sp.purview_type purviewType,
+        sp.purview_code purviewCode,
+        sp.url url,
+        sp.component component,
+        sp.icon icon,
+        sp.parent_id parentId,
+        sp.status status,
+        sp.create_user createUser,
+        sp.update_user updateUser,
+        sp.create_date createDate,
+        sp.update_date updateDate,
+        sp.remark remark,
+        sp.order_num orderNum,
+        sp.hidden hidden
+        <!--supri.eff_date effDate,
+        supri.exp_date expDate-->
+        from purview sp
+        left join user_purview_rel supri
+        on sp.purview_id = supri.purview_id
+        where supri.user_id = #{userId}
+        and sp.status = '1000'
+        and supri.status = '1000'
+        <if test="purviewType!=null and purviewType!=''">
+            and sp.purview_type = #{purviewType}
+        </if>
+        order by orderNum
+    </select>
+
+    <select id="hasPermission" parameterType="Map" resultType="Integer">
+        select count(*)
+        from (
+                 select 1
+                 from role_purview_rel srpr
+                          left join user_role_rel surr
+                                    on srpr.role_id = surr.role_id
+                 where surr.user_id = #{userId}
+                   and srpr.purview_id = #{permissionId}
+                   and surr.status = '1000'
+                   and srpr.status = '1000'
+
+                 union
+
+                 select 1
+                 from user_purview_rel supri
+                 where supri.user_id = #{userId}
+                   and supri.purview_id = #{permissionId}
+                   and supri.status = '1000'
+             ) a
+    </select>
+
+
+    <select id="getInterfacePermissions" parameterType="String"
+            resultType="com.yao2san.busi.user.bean.Permission">
+        select sp.purview_id purviewId,
+        sp.purview_name purviewName,
+        sp.purview_type purviewType,
+        sp.purview_code purviewCode,
+        sp.url url,
+        sp.icon icon,
+        sp.parent_id parentId,
+        sp.status status,
+        sp.create_user createUser,
+        sp.update_user updateUser,
+        sp.create_date createDate,
+        sp.update_date updateDate,
+        sp.remark remark
+
+        from purview sp
+        where
+        <!--权限类型 接口权限-->
+        PURVIEW_TYPE='2'
+        <if test="url!=null and url!=''">
+            and #{url} REGEXP url
+        </if>
+    </select>
+
+</mapper>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <meta name="viewport"
+        content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+  <script src="./js/npm/vue.js"></script>
+  <script src="./js/npm/heyui.js"></script>
+  <link rel="stylesheet" href="./css/npm/heyui/themes/index.css"/>
+  <link rel="stylesheet" href="./css/app.css"/>
+  <script src="./js/axios/0.19.0-beta.1/axios.min.js"></script>
+  <script src="./js/jquery/3.2.1/jquery.js"></script>
+</head>
+<body>
+<div id="app" style="min-height: 800px">
+  <div class="layout-demo-2-vue">
+    <h-layout headerFixed="true">
+      <!--<h-sider theme="dark" class="h-sider" siderFixed="true">
+          <div class="layout-logo">数据库差异分析</div>
+          <h-menu style="margin-top: 70px;color: white"  class="h-menu-dark" :datas="menuDatas" ></h-menu>
+      </h-sider>-->
+      <h-layout :headerFixed="true" class="layout-demo-2-vue">
+        <h-content>
+          <div
+            style="background: rgb(246,246,246); padding: 24px; min-height: 800px;">
+            <h-row :space="9">
+              <h-cell width="24">
+                <div>
+                  <div class="h-panel">
+                    <div class="h-panel-bar">
+                      <span class="h-panel-title" style="font-size: 1em;">字段对比项配置：</span>
+                      <span class="h-panel-right"></span>
+                    </div>
+                    <div class="h-panel-body">
+                      <p>
+                        <h-checkbox
+                          :indeterminate="selectedCompareType.length>0&&selectedCompareType.length<initData.compareTypes.length"
+                          :checked="selectedCompareType.length === initData.compareTypes.length"
+                          @click.native="checkAll">全选
+                        </h-checkbox>
+                      </p>
+                      <p>
+                        <h-checkbox v-model="selectedCompareType"
+                                    :datas="initData.compareTypes"></h-checkbox>
+                      </p>
+
+                    </div>
+                  </div>
+                  <div class="h-panel">
+                    <div class="h-panel-bar">
+                      <span class="h-panel-title"
+                            style="font-size: 1em;">显示设置：</span>
+                      <span class="h-panel-right"></span>
+                    </div>
+                    <div class="h-panel-body">
+                      <p>
+                        <h-switch v-model="showNoDifTable">显示没有差异的表</h-switch>
+                      </p>
+                    </div>
+                  </div>
+                  <p>
+                    <h-button @click="save()">保存</h-button>
+                    <h-button @click="reset()">重置</h-button>
+                  </p>
+                </div>
+              </h-cell>
+            </h-row>
+
+          </div>
+        </h-content>
+        <h-footer class="text-center">
+          by <a href="https://yao2san.com" target="_blank">wxg</a>
+          <a href="https://gitee.com/xgpxg/sim-framework/tree/master/sim-db-dif"
+             style="margin-right: 80px"><i class="h-icon-github"></i> </a>
+
+        </h-footer>
+      </h-layout>
+    </h-layout>
+  </div>
+</div>
+</body>
+
+<script src="./js/common.js"></script>
+<script src="./js/setting.js">
+</script>
+</html>

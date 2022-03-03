@@ -1,0 +1,10 @@
+
+sim-api:
+  enabled: true
+  server:
+    addr: 127.0.0.1:5221
+server:
+  port: 8099
+spring:
+  application:
+    name: app-test

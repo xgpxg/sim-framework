@@ -1,0 +1,18 @@
+server:
+  port: 8010
+zuul:
+  routes:
+    gateway:
+      url: http://127.0.0.1:7000
+      path: /api/**
+      stripPrefix: false
+      sensitive-headers:
+      add-host-header: true
+app:
+  config:
+    is-auth: false
+    login-url: /login
+
+logging:
+  level:
+    root: debug

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="task.server">
+    <insert id="insertTask"
+            parameterType="com.yao2san.server.com.yao2san.sim.framework.web.bean.SimTaskBean">
+        insert into SIM_TASK (TASK_NAME, TASK_GROUP, CLASS_NAME, CRON, ENABLED,
+                              APP_NAME, APP_ADDR)
+        values (#{taskName}, #{group}, #{className}, #{cron}, #{enabled},
+                #{appName}, #{appAddr});
+    </insert>
+    <update id="updateTask" parameterType="com.yao2san.server.com.yao2san.sim.framework.web.bean.SimTaskBean">
+        update SIM_TASK
+        set TASK_NAME=#{taskName},
+            TASK_GROUP=#{group},
+            CRON=#{cron},
+            ENABLED=#{enabled}
+        where CLASS_NAME = #{className}
+    </update>
+    <select id="queryTaskList"
+            parameterType="Map"
+            resultType="com.yao2san.server.com.yao2san.sim.framework.web.bean.SimTaskBean">
+        select id "id",
+        task_name "taskName",
+        task_group "group",
+        class_name "className",
+        cron "cron",
+        enabled "enabled",
+        APP_NAME "appName",
+        APP_ADDR "appAddr",
+        STATE "state"
+        from SIM_TASK
+        where 1=1
+        <if test="id != null and id!= '' ">
+            and id=#{id}
+        </if>
+        <if test="className != null and className != '' ">
+            and class_name=#{className}
+        </if>
+    </select>
+
+    <insert id="insertLog" parameterType="com.yao2san.server.com.yao2san.sim.framework.web.bean.LogMsg">
+        insert into SIM_TASK_LOG (INSTANCE_ID, SIM_TASK_ID, LEVEL, LOG)
+        values (#{instanceId}, #{simTaskId}, #{level}, #{log});
+    </insert>
+
+
+</mapper>

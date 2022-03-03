@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="tenantManage">
+    <!--查询租户的已授权服务-->
+    <select id="qryAuthServices"
+            parameterType="com.yao2san.busi.user.bean.request.TenantServiceReq"
+            resultType="com.yao2san.busi.user.bean.response.TenantServiceRes">
+        select s.SERVICE_ID "serviceId",
+        s.NAME "serviceName",
+        s.URL "url",
+        s.TYPE "serviceType",
+        s.ROUTE_ID "routeId",
+        s.STATUS "status",
+        '1' as "isAuth",
+        sp.EFF_DATE "effDate"
+        from SERVICE s
+        left join SERVICE_PURVIEW sp
+        on s.SERVICE_ID = sp.SERVICE_ID
+        where sp.USER_ID = #{userId}
+        and s.STATUS = '1000'
+        <if test="serviceName!=null and serviceName!=''">
+            and s.name like concat('%',#{serviceName},'%')
+        </if>
+    </select>
+    <!--查询租户未授权服务-->
+    <select id="qryNotAuthServices"
+            parameterType="com.yao2san.busi.user.bean.request.TenantServiceReq"
+            resultType="com.yao2san.busi.user.bean.response.TenantServiceRes">
+        select s.SERVICE_ID "serviceId",
+        s.NAME "serviceName",
+        s.URL "url",
+        s.TYPE "serviceType",
+        s.ROUTE_ID "routeId",
+        s.STATUS "status",
+        '0' as "isAuth"
+        from SERVICE s
+        where not exists(select 1 from SERVICE_PURVIEW sp where
+        sp.USER_ID = #{userId} and sp.SERVICE_ID=s.SERVICE_ID)
+        and s.STATUS = '1000'
+        <if test="serviceName!=null and serviceName!=''">
+            and s.name like concat('%',#{serviceName},'%')
+        </if>
+    </select>
+
+    <!--添加服务授权-->
+    <insert id="addServicePurview"
+            parameterType="Map">
+        insert into SERVICE_PURVIEW (user_id,
+                                     service_id,
+                                     eff_date,
+                                     exp_date,
+                                     status,
+                                     create_user,
+                                     update_user,
+                                     create_date,
+                                     update_date,
+                                     remark)
+        values (#{userId}, #{serviceId}, now(), null, '1000', #{createUser},
+                null, now(), null, null);
+    </insert>
+    <delete id="delServicePurview"
+            parameterType="com.yao2san.busi.user.bean.request.TenantServiceReq">
+        delete from SERVICE_PURVIEW
+        where USER_ID=#{userId} and SERVICE_ID in (
+        <foreach collection="services" item="serviceId" separator=",">
+            #{serviceId}
+        </foreach>
+        )
+    </delete>
+</mapper>

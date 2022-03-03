@@ -1,0 +1,19 @@
+.layout-logo {
+    width: 100%;
+    padding: 20px 20px;
+    float: left;
+    font-size: 1.2em;
+    border-bottom: #707070 solid 1px;
+    color:white;
+}
+.h-menu-white{
+}
+.h-sider{
+    border-right: whitesmoke solid 1px;
+}
+.h-layout{
+    overflow: auto;
+}
+.h-menu-li-selected{
+    background: black !important;
+}

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="grayRoute">
+    <select id="list"
+            parameterType="com.yao2san.sim.gateway.api.request.GrayRouteReq"
+            resultType="com.yao2san.sim.gateway.api.response.GrayRouteRes">
+        select
+        route_gray_id,route_id,gray_route_name, service_id, path, main_version,
+        gray_version, TYPE,
+        weight, headers, params, cookies, status, create_user, update_user,
+        create_date, update_date, remark,service_instances
+        from ROUTE_GRAY
+        <where>
+            <if test="path!=null and path!=''">
+                and path = #{path}
+            </if>
+            <if test="status!=null and status!=''">
+                and STATUS = #{status}
+            </if>
+        </where>
+        order by route_gray_id desc
+    </select>
+    <select id="detail" parameterType="Long"
+            resultType="com.yao2san.sim.gateway.api.response.GrayRouteRes">
+        select *
+        from ROUTE_GRAY
+        where ROUTE_GRAY_ID = #{grayRouteId}
+        order by ROUTE_GRAY_ID desc;
+    </select>
+    <insert id="add"
+            parameterType="com.yao2san.sim.gateway.api.request.GrayRouteReq">
+        insert into ROUTE_GRAY (SERVICE_ID, ROUTE_ID, GRAY_ROUTE_NAME, PATH,
+                                MAIN_VERSION, GRAY_VERSION,
+                                TYPE, WEIGHT, HEADERS, PARAMS, COOKIES, REMARK,
+                                SERVICE_INSTANCES,STATUS)
+        values (#{serviceId}, #{routeId}, #{grayRouteName}, #{path},
+                #{mainVersion}, #{grayVersion}, #{type},
+                #{weight},
+                #{headersString},
+                #{paramsString}, #{cookiesString}, #{remark},
+                #{serviceInstances},#{status})
+    </insert>
+
+    <delete id="delete" parameterType="Long">
+        delete
+        from ROUTE_GRAY
+        where ROUTE_GRAY_ID = #{routeGrayId}
+    </delete>
+
+    <update id="update"
+            parameterType="com.yao2san.sim.gateway.api.request.GrayRouteReq">
+        update ROUTE_GRAY set
+        <trim prefixOverrides="," suffixOverrides=",">
+
+            <if test="routeId!=null and routeId!=''">
+                ,ROUTE_ID=#{routeId}
+            </if>
+            <if test="groupId!=null and groupId!=''">
+                , GROUP_ID=#{groupId}
+            </if>
+            <if test="serviceId!=null and serviceId!=''">
+                , SERVICE_ID=#{serviceId}
+            </if>
+            <if test="path!=null and path!=''">
+                , PATH=#{path}
+            </if>
+            <if test="type!=null and type!=''">
+                , `TYPE`=#{type}
+            </if>
+            <if test="weight!=null and weight!=''">
+                , WEIGHT=#{weight}
+            </if>
+            <if test="status!=null and status!=''">
+                , STATUS=#{status}
+            </if>
+            <if test="mainVersion!=null and mainVersion!=''">
+                , MAIN_VERSION=#{mainVersion}
+            </if>
+            <if test="grayVersion!=null and grayVersion!=''">
+                , GRAY_VERSION=#{grayVersion}
+            </if>
+            <if test="serviceInstances!=null">
+                , SERVICE_INSTANCES=#{serviceInstances}
+            </if>
+        </trim>
+        where ROUTE_GRAY_ID=#{routeGrayId}
+    </update>
+
+
+    <select id="existByPath" parameterType="String" resultType="Integer">
+        select count(*)
+        from ROUTE
+        where PATH = #{path}
+    </select>
+
+
+</mapper>
